@@ -1,6 +1,6 @@
 // ===== Quick Quiz — Hand-crafted chapter review questions =====
 (function() {
-  var chapterH2s = [...document.querySelectorAll('#deep-notes h2')].filter(function(h) {
+  var chapterH2s = [...document.querySelectorAll('h2')].filter(function(h) {
     return /^\d+\./.test(h.textContent.trim());
   });
   if (chapterH2s.length === 0) return;

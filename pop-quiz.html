@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pop Quiz — IB Neuroscience</title>
+<style>
+:root {
+  --bg: #f0f2f5;
+  --surface: #ffffff;
+  --text: #1a1a2e;
+  --text-secondary: #64748b;
+  --accent: #2563eb;
+  --accent-light: #eff6ff;
+  --border: #e2e8f0;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.08);
+  --radius: 12px;
+  --sidebar-width: 250px;
+  --sidebar-collapsed: 56px;
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app { display: flex; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 20px 16px;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 200;
+  transition: width var(--transition), padding var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar.collapsed {
+  width: var(--sidebar-collapsed);
+  padding: 20px 10px;
+}
+
+.sidebar-toggle {
+  position: absolute;
+  top: 14px; right: 12px;
+  width: 30px; height: 30px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.sidebar-toggle:hover { background: var(--bg); color: var(--text); border-color: var(--accent); }
+
+.sidebar-header {
+  margin-bottom: 24px;
+  padding-right: 36px;
+  flex-shrink: 0;
+}
+
+.brand {
+  font-size: 17px; font-weight: 700; color: var(--text);
+  margin-bottom: 2px; letter-spacing: -0.3px;
+  white-space: nowrap; overflow: hidden;
+}
+
+.brand-sub {
+  font-size: 11px; color: var(--text-secondary);
+  white-space: nowrap; overflow: hidden;
+}
+
+.sidebar.collapsed .brand,
+.sidebar.collapsed .brand-sub { opacity: 0; transition: opacity 0.12s; }
+
+.nav { list-style: none; flex: 1; }
+.nav li { margin-bottom: 2px; }
+
+.nav a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 8px;
+  color: var(--text-secondary); text-decoration: none;
+  font-size: 13.5px; font-weight: 500;
+  transition: all 0.15s;
+  white-space: nowrap; overflow: hidden;
+}
+
+.nav a .nav-icon { font-size: 17px; flex-shrink: 0; width: 22px; text-align: center; }
+.nav a .nav-label { opacity: 1; transition: opacity 0.12s; }
+
+.sidebar.collapsed .nav a .nav-label { opacity: 0; width: 0; }
+.sidebar.collapsed .nav a { padding: 10px; justify-content: center; }
+
+.nav a:hover { background: var(--bg); color: var(--text); }
+.nav a.active { background: var(--accent-light); color: var(--accent); }
+
+/* Main */
+.main {
+  margin-left: var(--sidebar-width);
+  flex: 1; max-width: 900px; padding: 40px 36px;
+  transition: margin-left var(--transition);
+}
+
+.sidebar.collapsed ~ .main { margin-left: var(--sidebar-collapsed); }
+
+.section {
+  background: var(--surface); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 40px 44px;
+  border: 1px solid var(--border);
+}
+
+.section h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+.section h2 {
+  font-size: 19px; font-weight: 600; margin-top: 32px; margin-bottom: 14px;
+  padding-bottom: 10px; border-bottom: 2px solid var(--accent-light);
+}
+.section h3 { font-size: 16px; font-weight: 600; margin-top: 24px; margin-bottom: 10px; }
+.section p { margin-bottom: 14px; }
+.section ul, .section ol { margin-left: 22px; margin-bottom: 16px; }
+.section li { margin-bottom: 7px; }
+.section hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+.section blockquote {
+  border-left: 3px solid var(--accent); background: var(--accent-light);
+  padding: 14px 18px; margin: 18px 0; border-radius: 0 8px 8px 0;
+  font-style: normal;
+}
+.section blockquote p { margin-bottom: 0; }
+.section code {
+  background: var(--bg); padding: 2px 7px; border-radius: 5px;
+  font-size: 13px; font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+}
+.section pre {
+  background: #1e1e2e; color: #e4e4e7; padding: 18px;
+  border-radius: 8px; overflow-x: auto; font-size: 13px; line-height: 1.6; margin-bottom: 18px;
+}
+.section table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 14px; }
+.section th, .section td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--border); }
+.section th {
+  font-weight: 600; background: var(--bg); font-size: 12px;
+  text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-secondary);
+}
+.section tr:hover td { background: #f8fafc; }
+.section figure { margin: 28px 0; text-align: center; }
+.section figure img {
+  max-width: 100%; height: auto; border-radius: 8px;
+  border: 1px solid var(--border); display: block; margin: 0 auto; box-shadow: var(--shadow-sm);
+}
+.section figcaption { font-size: 13px; color: var(--text-secondary); margin-top: 10px; font-style: italic; }
+
+/* Glossary Cross-Reference */
+.glossary-term {
+  border-bottom: 1.5px dotted var(--accent); cursor: help; color: var(--accent); transition: background 0.15s;
+}
+.glossary-term:hover { background: var(--accent-light); border-bottom-style: solid; }
+.glossary-tooltip {
+  position: fixed; z-index: 1000; max-width: 340px; padding: 14px 18px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  box-shadow: var(--shadow-lg); font-size: 14px; line-height: 1.55;
+  pointer-events: none; opacity: 0; transform: translateY(4px);
+  transition: opacity 0.18s, transform 0.18s;
+}
+.glossary-tooltip.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.glossary-tooltip strong { display: block; font-size: 15px; margin-bottom: 4px; color: var(--accent); }
+.glossary-tooltip .tt-jump {
+  display: inline-block; margin-top: 8px; font-size: 12px; color: var(--accent);
+  text-decoration: none; border-bottom: 1px solid var(--accent);
+}
+.glossary-tooltip .tt-jump:hover { text-decoration: underline; border-bottom: none; }
+.glossary-list li:target {
+  background: var(--accent-light); outline: 2px solid var(--accent); outline-offset: -2px;
+  border-radius: 8px; animation: flash-highlight 1.5s ease-out;
+}
+@keyframes flash-highlight { from { background: #bfdbfe; } to { background: var(--accent-light); } }
+
+/* Glossary */
+.glossary-list { list-style: none; margin-left: 0 !important; }
+.glossary-list li {
+  padding: 11px 15px; border-radius: 8px; margin-bottom: 6px; background: var(--bg); transition: background 0.15s;
+}
+.glossary-list li:hover { background: #e8ecf1; }
+.glossary-search {
+  width: 100%; padding: 11px 16px; border: 1.5px solid var(--border); border-radius: 10px;
+  font-size: 14px; margin-bottom: 22px; outline: none; transition: border-color 0.15s; background: var(--bg);
+}
+.glossary-search:focus { border-color: var(--accent); background: var(--surface); }
+
+/* Quiz */
+.quiz-intro { margin-bottom: 22px; }
+.quiz-card {
+  background: var(--bg); border-radius: 10px; padding: 22px 26px; margin-bottom: 18px;
+  border: 1px solid var(--border); transition: box-shadow 0.15s;
+}
+.quiz-card:hover { box-shadow: var(--shadow); }
+.quiz-card ol { margin-left: 22px; margin-top: 12px; margin-bottom: 12px; }
+.quiz-card ol li { padding: 5px 0; }
+.reveal-btn {
+  background: var(--accent); color: #fff; border: none; padding: 9px 18px;
+  border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 12px; transition: all 0.15s;
+}
+.reveal-btn:hover { background: #1d4ed8; box-shadow: 0 2px 8px rgba(37,99,235,0.3); }
+.answer-block {
+  display: none; margin-top: 16px; padding: 16px 18px; background: #ecfdf5;
+  border-left: 3px solid #10b981; border-radius: 0 8px 8px 0;
+}
+.answer-block.visible { display: block; }
+
+/* Quick Quiz Slide Panel */
+.quick-quiz-toggle {
+  display: inline-block; margin-left: 10px; padding: 4px 12px;
+  border: 1px solid var(--accent); border-radius: 20px; background: var(--surface);
+  color: var(--accent); font-size: 12px; font-weight: 500; cursor: pointer;
+  vertical-align: middle; transition: all 0.15s; white-space: nowrap;
+}
+.quick-quiz-toggle:hover { background: var(--accent); color: #fff; }
+.quick-quiz-toggle.active { background: var(--accent); color: #fff; }
+
+.qq-overlay {
+  position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0);
+  pointer-events: none; transition: background 0.25s;
+}
+.qq-overlay.open { background: rgba(0,0,0,0.3); pointer-events: auto; }
+.qq-slide-panel {
+  position: fixed; top: 0; right: 0; width: 440px; max-width: 92vw; height: 100vh;
+  z-index: 501; background: var(--surface); box-shadow: -6px 0 30px rgba(0,0,0,0.12);
+  transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex; flex-direction: column; overflow-y: auto;
+}
+.qq-overlay.open .qq-slide-panel { transform: translateX(0); }
+.qq-close {
+  position: absolute; top: 16px; right: 16px; width: 32px; height: 32px;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--surface);
+  font-size: 18px; color: var(--text-secondary); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: all 0.15s; z-index: 2;
+}
+.qq-close:hover { background: var(--bg); color: var(--text); border-color: var(--accent); }
+.qq-panel-header {
+  padding: 24px 28px 16px; font-size: 18px; font-weight: 700;
+  color: var(--text); border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.qq-panel-body { padding: 20px 28px; display: flex; flex-direction: column; gap: 16px; flex: 1; overflow-y: auto; }
+.qq-slide-card { background: var(--bg); border-radius: 10px; padding: 18px 20px; border: 1px solid var(--border); }
+.qq-question { font-size: 14px; line-height: 1.6; margin-bottom: 12px; color: var(--text); }
+.qq-blank {
+  display: inline-block; min-width: 70px; border-bottom: 2px dashed var(--accent);
+  color: var(--accent); font-weight: 600; padding: 0 4px; margin: 0 2px;
+}
+.qq-reveal {
+  display: inline-block; padding: 5px 12px; border: none; border-radius: 6px;
+  background: var(--accent); color: #fff; font-size: 12px; font-weight: 500; cursor: pointer; transition: background 0.15s;
+}
+.qq-reveal:hover { background: #1d4ed8; }
+.qq-answer {
+  display: none; margin-top: 10px; padding: 10px 14px; background: #ecfdf5;
+  border-left: 3px solid #10b981; border-radius: 0 6px 6px 0;
+  font-size: 13px; font-weight: 600; color: var(--text);
+}
+.qq-answer.shown { display: block; }
+
+/* Flashcards */
+.flashcard-container { perspective: 1200px; display: flex; flex-direction: column; align-items: center; gap: 24px; }
+.flashcard {
+  width: 100%; max-width: 600px; height: 380px; position: relative; cursor: pointer;
+  transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.flashcard.flipped { transform: rotateY(180deg); }
+.flashcard-front, .flashcard-back {
+  position: absolute; inset: 0; backface-visibility: hidden; border-radius: 14px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 36px 40px; text-align: center; border: 1px solid var(--border);
+}
+.flashcard-front { background: var(--surface); box-shadow: var(--shadow-lg); }
+.flashcard-front .fc-question { font-size: 20px; font-weight: 600; line-height: 1.5; color: var(--text); }
+.flashcard-front .fc-hint { margin-top: 16px; font-size: 13px; color: var(--text-secondary); }
+.flashcard-back {
+  background: var(--accent-light); transform: rotateY(180deg); box-shadow: var(--shadow-lg);
+  overflow-y: auto; justify-content: flex-start; text-align: left;
+}
+.flashcard-back .fc-answer { font-size: 15px; line-height: 1.65; color: var(--text); }
+.flashcard-back .fc-answer table { width: 100%; margin: 8px 0; font-size: 13px; }
+.flashcard-back .fc-answer table th, .flashcard-back .fc-answer table td {
+  padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left;
+}
+.flashcard-back .fc-answer table th { background: transparent; text-transform: none; font-size: 12px; }
+.flashcard-back .fc-answer img { max-width: 100%; max-height: 200px; border-radius: 8px; margin: 10px 0; }
+.fc-controls { display: flex; align-items: center; gap: 16px; }
+.fc-nav {
+  width: 40px; height: 40px; border: 1px solid var(--border); border-radius: 50%;
+  background: var(--surface); font-size: 20px; color: var(--text); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+}
+.fc-nav:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.fc-counter { font-size: 14px; font-weight: 500; color: var(--text-secondary); min-width: 80px; text-align: center; }
+.fc-chapter-tag { font-size: 11px; color: var(--accent); background: var(--accent-light); padding: 3px 10px; border-radius: 12px; font-weight: 500; }
+
+/* PDF Section */
+.pdf-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.pdf-tab {
+  padding: 8px 16px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-secondary); font-size: 13px;
+  font-weight: 500; cursor: pointer; transition: all 0.15s;
+}
+.pdf-tab:hover { background: var(--bg); color: var(--text); }
+.pdf-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.pdf-viewer { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #525659; }
+.pdf-frame { width: 100%; height: 85vh; border: none; display: block; }
+.pdf-empty { text-align: center; color: var(--text-secondary); padding: 40px; }
+
+/* Mobile */
+@media (max-width: 768px) {
+  .sidebar { width: 100%; position: relative; height: auto; border-right: none; border-bottom: 1px solid var(--border); padding: 16px; }
+  .sidebar.collapsed { width: 100%; padding: 16px; }
+  .sidebar-toggle { display: none; }
+  .main { margin-left: 0 !important; padding: 24px 16px; }
+  .app { flex-direction: column; }
+  .nav { display: flex; gap: 6px; overflow-x: auto; }
+  .nav li { margin-bottom: 0; }
+  .section { padding: 24px 20px; }
+  .pdf-frame { height: 60vh; }
+  .flashcard { height: 300px; }
+  .flashcard-front .fc-question { font-size: 17px; }
+  .flashcard-front, .flashcard-back { padding: 24px 22px; }
+  .qq-slide-panel { width: 100vw; max-width: 100vw; border-radius: 0; }
+  .qq-panel-header { padding: 20px 20px 14px; font-size: 16px; }
+  .qq-panel-body { padding: 16px 20px; }
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">☰</button>
+    <div class="sidebar-header">
+      <div class="brand">IB Neuroscience</div>
+      <div class="brand-sub">Study Hub</div>
+    </div>
+    <ul class="nav">
+      <li><a href="index.html" class=""><span class="nav-icon">📝</span><span class="nav-label">Deep Notes</span></a></li>
+      <li><a href="pop-quiz.html" class="active"><span class="nav-icon">✅</span><span class="nav-label">Pop Quiz</span></a></li>
+      <li><a href="flashcards.html" class=""><span class="nav-icon">🃏</span><span class="nav-label">Flashcards</span></a></li>
+      <li><a href="blog.html" class=""><span class="nav-icon">📰</span><span class="nav-label">Blog</span></a></li>
+      <li><a href="source-pdfs.html" class=""><span class="nav-icon">📄</span><span class="nav-label">Source PDFs</span></a></li>
+    </ul>
+  </aside>
+  <main class="main">
+    <section class="section">
+      <div class="quiz-intro"><h1 id="ibb-neuroscience-quiz">IBB Neuroscience Quiz</h1>
+<blockquote>
+<p><strong>Instructions:</strong> This quiz contains 18 questions covering neurohistology, neuroanatomy, and clinical neurology. Answer each question to the best of your ability. For MCQs, select the single best answer. For short answer questions, write 3–5 sentences. Target time: 45–60 minutes.</p>
+</blockquote></div>
+<div class="quiz-card" id="quiz-card-1"><h2 id="remember">Remember</h2>
+<p><strong>Q1. The myelin sheath in the peripheral nervous system is produced by _____ cells, whereas in the central nervous system it is produced by _____.</strong></p>
+<button class="reveal-btn" onclick="toggleAnswer(&quot;quiz-card-1&quot;)">Reveal Answer</button><div class="answer-block" id="ans-quiz-card-1"><p><strong>Answer:</strong> Schwann (lemmocyte) | oligodendrocyte <strong>Also accept:</strong> lemmocyte / Schwann cell ; oligodendrocytes <strong>Bloom Level:</strong> Remember <strong>Topic:</strong> Neurohistology — Glial Cells and Myelin</p></div></div>
+<div class="quiz-card" id="quiz-card-2"><p><strong>Q2. In the developing neural tube, the _____ gene is secreted by the notochord and directs ventral patterning, while _____ and BMP genes direct dorsal patterning.</strong></p>
+<button class="reveal-btn" onclick="toggleAnswer(&quot;quiz-card-2&quot;)">Reveal Answer</button><div class="answer-block" id="ans-quiz-card-2"><p><strong>Answer:</strong> sonic hedgehog (Shh) | Wnt <strong>Also accept:</strong> Shh ; Wnt genes / Wnt and BMP <strong>Bloom Level:</strong> Remember <strong>Topic:</strong> Neuroanatomy — Development of the Nervous System</p></div></div>
+<div class="quiz-card" id="quiz-card-3"><h2 id="understand">Understand</h2>
+<p><strong>Q3. A patient has weakness in one arm accompanied by muscle wasting, loss of reflexes, and loss of tone in the affected muscles. Which type of cell damage most directly explains this presentation?</strong></p>
+<ol type="A">
+<li>Corticospinal tract neurons in the internal capsule</li>
+<li>Oligodendrocytes surrounding descending motor pathways</li>
+<li>Alpha motor neurons in the ventral horn of the spinal cord</li>
+<li>Purkinje cells in the cerebellar cortex</li>
+</ol>
+<button class="reveal-btn" onclick="toggleAnswer(&quot;quiz-card-3&quot;)">Reveal Answer</button><div class="answer-block" id="ans-quiz-card-3"><p><strong>Answer:</strong> C <strong>Explanation:</strong> Weakness with muscle wasting, loss of reflexes, and loss of tone describes flaccid paralysis, which results from damage to lower motor neurons (alpha motor neurons in lamina 9 of the ventral horn). Option A describes upper motor neuron damage, which produces spastic paralysis with increased tone and hyperreflexia — the opposite of what is seen here. Option B refers to demyelination, which might cause weakness but not the characteristic wasting and loss of reflexes seen with motor neuron death. Option D (Purkinje cell damage) would cause incoordination and ataxia rather than flaccid paralysis with wasting. <strong>Bloom Level:</strong> Understand <strong>Topic:</strong> Neurology — Motor Signs / Neuroanatomy — Spinal Cord</p></div></div>
+<div class="quiz-card" id="quiz-card-4"><p><strong>Q4. Which of the following best describes a key difference between the dorsal column-medial lemniscus pathway and the spinothalamic tract?</strong></p>
+<ol type="A">
+<li>The dorsal column pathway carries pain and temperature, while the spinothalamic tract carries touch and proprioception</li>
+<li>The dorsal column fibers cross the midline in the spinal cord, while spinothalamic fibers cross in the hindbrain</li>
+<li>The dorsal column fibers do not cross until they reach the hindbrain, while spinothalamic fibers cross within a few spinal segments of entry</li>
+<li>The spinothalamic tract has two neurons in its chain, while the dorsal column pathway has three</li>
+</ol>
+<button class="reveal-btn" onclick="toggleAnswer(&quot;quiz-card-4&quot;)">Reveal Answer</button><div class="answer-block" id="ans-quiz-card-4"><p><strong>Answer:</strong> C <strong>Explanation:</strong> The dorsal column-medial lemniscus pathway carries touch, deep pressure, proprioception, and vibration; its first-order neuron axons ascend ipsilaterally in the dorsal columns and only cross after synapsing in the gracile and cuneate nuclei of the hindbrain. In contrast, the spinothalamic tract (pain and temperature) crosses the midline in the anterior white commissure within a few segments of entry. Option A reverses the functions of the two pathways. Option B also reverses where the crossing occurs. Option D is incorrect because both pathways involve three neurons in their chains. <strong>Bloom Level:</strong> Understand <strong>Topic:</strong> Neuroanatomy — Sensory Systems</p></div></div>
+<div class="quiz-card" id="quiz-card-5"><p><strong>Q5. Why is the cerebellum described as having an ipsilateral rather than contralateral connection with the body?</strong></p>
+<ol type="A">
+<li>Cerebellar output crosses the midline twice before reaching motor neurons</li>
+<li>The middle cerebellar peduncle decussates directly within the cerebellum</li>
+<li>Cerebellar efferents travel only to the ipsilateral thalamus and motor cortex</li>
+<li>The superior cerebellar peduncle decussates in the midbrain, but the corticospinal tract decussates at the pyramidal decussation, resulting in a double crossing</li>
+</ol>
+<button class="reveal-btn" onclick="toggleAnswer(&quot;quiz-card-5&quot;)">Reveal Answer</button><div class="answer-block" id="ans-quiz-card-5"><p><strong>Answer:</strong> D <strong>Explanation:</strong> The cerebellum has ipsilateral body connections because there are two decussations in its output pathway: the superior cerebellar peduncle crosses in the midbrain (decussation of the superior cerebellar peduncle), and then the corticospinal tract crosses again at the pyramidal decussation. These two crossings bring the cerebellum back to the same side of the body. Option A is misleading because it is not about “two crossings of cerebellar output” in the way described. Option B is incorrect because the middle cerebellar peduncle does not decussate within the cerebellum. Option C is incorrect because cerebellar efferents do cross to reach the contralateral thalamus. <strong>Bloom Level:</strong> Understand <strong>Topic:</strong> Neuroanatomy — Cerebellum</p></div></div>
+<div class="quiz-card" id="quiz-card-6"><p><strong>Q6. Which brain structure serves as the “24-hour clock” for circadian rhythms and receives direct input from the optic nerve?</strong></p>
+<ol type="A">
+<li>The ventrolateral preoptic nucleus (VLPO)</li>
+<li>The suprachiasmatic nucleus</li>
+<li>The lateral geniculate nucleus</li>
+<li>The ventromedial hypothalamic nucleus</li>
+</ol>
+<button class="reveal-btn" onclick="toggleAnswer(&quot;quiz-card-6&quot;)">Reveal Answer</button><div class="answer-block" id="ans-quiz-card-6"><p><strong>Answer:</strong> B <strong>Explanation:</strong> The suprachiasmatic nucleus sits immediately above the optic chiasm and functions as the brain’s circadian clock; its neurons have an internal timing system adjusted by light intensity information from the optic nerves. Option A (VLPO) is the master sleep switch that inhibits arousal centers, not the circadian clock itself. Option C (LGN) is a thalamic relay for vision, not a circadian pacemaker. Option D (VMH) is involved in feeding and defensive behaviors, not circadian timing. <strong>Bloom Level:</strong> Understand <strong>Topic:</strong> Neuroanatomy — Hypothalamus</p></div></div>
+<div class="quiz-card" id="quiz-card-7"><h2 id="apply">Apply</h2>
+<p><strong>Q7. A 67-year-old patient suddenly develops weakness in the right arm and leg, increased muscle tone, and an extensor plantar response (Babinski sign) on the right side. CT confirms a left hemisphere stroke. Which structure is most likely affected?</strong></p>
+<ol type="A">
+<li>The left cerebellar hemisphere</li>
+<li>The left internal capsule</li>
+<li>The right ventral horn of the cervical spinal cord</li>
+<li>The left substantia nigra</li>
+</ol>
+<button class="reveal-btn" onclick="toggleAnswer(&quot;quiz-card-7&quot;)">Reveal Answer</button><div class="answer-block" id="ans-quiz-card-7"><p><strong>Answer:</strong> B <strong>Explanation:</strong> The internal capsule contains the corticospinal tract; even relatively minor damage here can cause contralateral spastic paralysis with increased tone, weakness, and Babinski sign. The sudden onset and contralateral presentation are classic for an internal capsule stroke. Option A (cerebellar hemisphere) would cause ipsilateral incoordination and ataxia, not contralateral spastic paralysis. Option C (right ventral horn) would cause ipsilateral flaccid paralysis with wasting, not spasticity. Option D (substantia nigra) causes Parkinsonism (tremor, rigidity, bradykinesia), not acute spastic hemiparesis. <strong>Bloom Level:</strong> Apply <strong>Topic:</strong> Neurology — Stroke / Neuroanatomy — Motor Systems</p></div></div>
+<div class="quiz-card" id="quiz-card-8"><p><strong>Q8. A patient with Parkinson’s disease is asked to hold their hands outstretched. While at rest, the hands show a coarse, rhythmic tremor that decreases when the patient reaches for a cup. Which statement about this tremor is accurate?</strong></p>
+<ol type="A">
+<li>This is an action tremor that worsens during voluntary movement and localizes to cerebellar damage</li>
+<li>This is a resting tremor characteristic of Parkinsonism that lessens during voluntary movement</li>
+<li>This is an intention tremor caused by damage to the superior cerebellar peduncle</li>
+<li>This is a physiological tremor that occurs in healthy individuals and is unrelated to disease</li>
+</ol>
+<button class="reveal-btn" onclick="toggleAnswer(&quot;quiz-card-8&quot;)">Reveal Answer</button><div class="answer-block" id="ans-quiz-card-8"><p><strong>Answer:</strong> B <strong>Explanation:</strong> The description of a tremor present at rest that decreases during voluntary movement is the classic resting tremor of Parkinson’s disease, caused by loss of dopaminergic neurons in the substantia nigra. Option A describes an action tremor, which is the opposite pattern (worsens with movement). Option C describes an intention (action) tremor, which is a sign of cerebellar damage and worsens as the hand approaches a target. Option D is incorrect because physiological tremor is fine, not coarse, and is not a pathological sign. <strong>Bloom Level:</strong> Apply <strong>Topic:</strong> Neurology — Motor Signs / Neuroanatomy — Basal Ganglia</p></div></div>
+<div class="quiz-card" id="quiz-card-9"><p><strong>Q9. Which of the following clinical findings would most likely result from damage to the right spinothalamic tract at the T6 spinal cord level?</strong></p>
+<ol type="A">
+<li>Loss of touch and vibration sense on the right side below T6</li>
+<li>Loss of pain and temperature sensation on the left side below T6</li>
+<li>Loss of proprioception on the right side below T6</li>
+<li>Loss of all sensation on the left side at exactly the T6 dermatome</li>
+</ol>
+<button class="reveal-btn" onclick="toggleAnswer(&quot;quiz-card-9&quot;)">Reveal Answer</button><div class="answer-block" id="ans-quiz-card-9"><p><strong>Answer:</strong> B <strong>Explanation:</strong> The spinothalamic tract (lateral spinothalamic for pain and temperature) carries fibers that have crossed from the opposite side of the body. Therefore, damage to the right spinothalamic tract causes loss of pain and temperature sensation on the left side below the lesion. Option A describes dorsal column damage (ipsilateral touch/vibration). Option C also describes dorsal column damage (ipsilateral proprioception). Option D is incorrect because damage to a single spinal level affects sensation below that level, not just at that dermatome, and because the spinothalamic tract carries information from the contralateral side. <strong>Bloom Level:</strong> Apply <strong>Topic:</strong> Neuroanatomy — Sensory Systems / Neurology — Sensory Loss</p></div></div>
+<div class="quiz-card" id="quiz-card-10"><p><strong>Q10. A 6-year-old dog is having difficulty standing, knuckles over when walking, and drags its feet. The veterinarian suspects a progressive spinal cord disease. Histology shows degeneration of myelin sheaths in the spinal cord white matter, but axons are intact. Which cell type is primarily affected in this condition?</strong></p>
+<ol type="A">
+<li>Schwann cells in the dorsal root ganglia</li>
+<li>Oligodendrocytes in the spinal cord white matter</li>
+<li>Astrocytes surrounding the central canal</li>
+<li>Microglia in the ventral horn</li>
+</ol>
+<button class="reveal-btn" onclick="toggleAnswer(&quot;quiz-card-10&quot;)">Reveal Answer</button><div class="answer-block" id="ans-quiz-card-10"><p><strong>Answer:</strong> B <strong>Explanation:</strong> The case describes degenerative myelopathy — a demyelinating disease of the spinal cord. In the CNS, myelin is produced by oligodendrocytes, so their degeneration leads to the described myelin loss. Since axons are intact but myelin is lost, the problem is specifically demyelination. Option A (Schwann cells) myelinate peripheral nerves, not spinal cord white matter tracts. Option C (astrocytes) are involved in ion homeostasis and synapse modulation, not myelination. Option D (microglia) are immune effector cells and would respond to damage but are not the primary source of myelin. <strong>Bloom Level:</strong> Apply <strong>Topic:</strong> Neurohistology — Myelin / Neurology — Demyelination</p></div></div>
+<div class="quiz-card" id="quiz-card-11"><h2 id="analyze">Analyze</h2>
+<p><strong>Q11. A patient with multiple sclerosis experiences fatigue, intention tremor, and lack of coordination. Which pathophysiological mechanism best explains the tremor in this patient?</strong></p>
+<ol type="A">
+<li>Loss of dopaminergic neurons in the substantia nigra causing resting tremor</li>
+<li>Demyelination of cerebellar afferent and efferent pathways causing intention tremor</li>
+<li>Destruction of motor neurons in the ventral horn causing flaccid paralysis</li>
+<li>Accumulation of amyloid-beta plaques in the cerebellar cortex disrupting balance</li>
+</ol>
+<button class="reveal-btn" onclick="toggleAnswer(&quot;quiz-card-11&quot;)">Reveal Answer</button><div class="answer-block" id="ans-quiz-card-11"><p><strong>Answer:</strong> B <strong>Explanation:</strong> Multiple sclerosis causes focal demyelination in CNS white matter. When demyelination affects cerebellar connections (including spinocerebellar tracts, pontocerebellar fibers, or cerebellar output via the superior cerebellar peduncle), it produces intention tremor and ataxia because the cerebellum cannot properly coordinate movement timing. Option A describes Parkinson’s disease pathophysiology, not MS. Option C describes motor neuron disease (flaccid paralysis), not MS. Option D describes Alzheimer’s disease pathology, which affects the hippocampus and cortex, not the cerebellum, and does not cause tremor. <strong>Bloom Level:</strong> Analyze <strong>Topic:</strong> Neurology — Neurodegenerative Diseases / Neuroanatomy — Cerebellum</p></div></div>
+<div class="quiz-card" id="quiz-card-12"><p><strong>Q12. Which of the following statements accurately compares the roles of astrocytes and oligodendrocytes in the CNS?</strong></p>
+<ol type="A">
+<li>Astrocytes provide structural support only, while oligodendrocytes form myelin sheaths around axons</li>
+<li>Astrocytes actively recycle neurotransmitters, modulate synapses, and maintain extracellular ionic composition, while oligodendrocytes produce myelin for multiple axons</li>
+<li>Astrocytes form myelin sheaths around peripheral nerves, while oligodendrocytes support neuronal metabolism</li>
+<li>Both astrocytes and oligodendrocytes are primarily immune effector cells that respond to CNS injury</li>
+</ol>
+<button class="reveal-btn" onclick="toggleAnswer(&quot;quiz-card-12&quot;)">Reveal Answer</button><div class="answer-block" id="ans-quiz-card-12"><p><strong>Answer:</strong> B <strong>Explanation:</strong> Astrocytes are far more than passive structural support cells; they actively recycle neurotransmitters, secrete neurotrophic factors, modulate synapse number and function, and maintain extracellular potassium levels. Oligodendrocytes produce myelin sheaths and, critically, one oligodendrocyte can myelinate multiple axons in the CNS. Option A underestimates astrocyte function — this is a common misconception. Option C reverses the roles of the two cell types. Option D incorrectly describes both cell types; microglia, not astrocytes or oligodendrocytes, are the primary immune effector cells of the CNS. <strong>Bloom Level:</strong> Analyze <strong>Topic:</strong> Neurohistology — Glial Cells</p></div></div>
+<div class="quiz-card" id="quiz-card-13"><p><strong>Q13. In a transverse section through the rostral hindbrain, a student identifies a massive ventral bulge formed by crossing fibers and large nuclei. What is this structure, where do the crossing fibers terminate, and what is its functional significance?</strong></p>
+<ol type="A">
+<li>The inferior olive; its fibers cross to the opposite cerebellum via the inferior cerebellar peduncle to provide timing signals</li>
+<li>The pontine nuclei; their fibers cross to form the middle cerebellar peduncle and carry cortical input to the contralateral cerebellum</li>
+<li>The pyramidal decussation; corticospinal fibers cross here to reach the contralateral spinal cord</li>
+<li>The medial lemniscus; somatosensory fibers cross here to reach the thalamus</li>
+</ol>
+<button class="reveal-btn" onclick="toggleAnswer(&quot;quiz-card-13&quot;)">Reveal Answer</button><div class="answer-block" id="ans-quiz-card-13"><p><strong>Answer:</strong> B <strong>Explanation:</strong> The massive bulge on the ventral surface of the rostral hindbrain is formed by the basilar pontine nuclei and the crossing pontocerebellar fibers. The pontine nuclei receive input from the cerebral cortex via corticopontine fibers, and their axons cross the midline to form the middle cerebellar peduncle, carrying this information to the contralateral cerebellar hemisphere. Option A describes the inferior olive, which is smaller and more caudal, not the massive pontine bulge. Option C describes the pyramidal decussation, which is at the caudal end of the hindbrain, not rostral. Option D describes the medial lemniscus, which is a dorsal sensory tract, not a ventral bulge. <strong>Bloom Level:</strong> Analyze <strong>Topic:</strong> Neuroanatomy — Brain Stem / Precerebellar Nuclei</p></div></div>
+<div class="quiz-card" id="quiz-card-14"><h2 id="short-answer">Short Answer</h2>
+<p><strong>Q14. A 58-year-old patient presents with sudden-onset right-sided weakness, increased muscle tone, hyperreflexia, and a positive Babinski sign. Explain whether this is most consistent with upper or lower motor neuron damage, describe the key distinguishing features between these two types of paralysis, and identify the most likely anatomical location of the lesion.</strong></p>
+<p><strong>Model Answer:</strong> This presentation is consistent with upper motor neuron (corticospinal tract) damage, classically termed spastic paralysis. Key distinguishing features: spastic paralysis shows increased muscle tone (spasticity), exaggerated reflexes (hyperreflexia), and positive Babinski sign (extension of the great toe upon plantar stimulation), with relatively little muscle wasting. In contrast, lower motor neuron damage causes flaccid paralysis with decreased or absent tone, loss of reflexes (areflexia), significant muscle atrophy, and fasciculations. The sudden onset and contralateral spastic hemiparesis suggest a lesion in the left internal capsule, which contains the corticospinal tract. The internal capsule is particularly vulnerable because it is a compact bundle of fibers; even small lesions (such as from a lacunar stroke or hemorrhage) can cause widespread contralateral motor deficits.</p>
+<p><strong>Key points required:</strong></p>
+<ul>
+<li>Identifies upper motor neuron / spastic paralysis</li>
+<li>Contrasts with lower motor neuron / flaccid paralysis (tone, reflexes, Babinski, atrophy)</li>
+<li>Identifies internal capsule or corticospinal tract as lesion location</li>
+<li>Notes contralateral presentation</li>
+<li>Explains sudden onset is consistent with vascular event (stroke)</li>
+</ul>
+<p><strong>Bloom Level:</strong> Apply <strong>Topic:</strong> Neurology — Motor Signs / Neuroanatomy — Motor Systems</p></div>
+<div class="quiz-card" id="quiz-card-15"><p><strong>Q15. Explain why the cerebellum is not “just for balance,” using at least three specific functional roles of the cerebellum supported by the course material.</strong></p>
+<p><strong>Model Answer:</strong> The cerebellum is often mistakenly thought to be only for balance, but it has multiple critical motor and cognitive functions. First, the cerebellum coordinates complex voluntary movements by comparing motor commands with actual body movements and making real-time adjustments — this is most important during the end stages of purposeful movements. Second, it manages posture and balance by receiving input from the vestibular system and making major postural adjustments. Third, in primates, the cerebellum is vital for coordinating hand and eye movements, including the fine coordination of skilled finger movements under binocular vision control, which enables tool manufacture. Fourth, the cerebellum contains granule cells that learn movement sequences throughout life — different folia code different movement patterns. Damage causes incoordination (ataxia), intention tremor, and dysmetria, not just balance problems.</p>
+<p><strong>Key points required:</strong></p>
+<ul>
+<li>Explicitly rejects “only for balance” misconception</li>
+<li>Coordinates complex voluntary movements via feedback comparison</li>
+<li>Manages posture and balance (vestibular input)</li>
+<li>Coordinates hand-eye movements and skilled finger movements</li>
+<li>Learning of movement sequences (granule cells, folia)</li>
+<li>Classic symptoms of damage: incoordination, intention tremor, dysmetria</li>
+</ul>
+<p><strong>Bloom Level:</strong> Analyze <strong>Topic:</strong> Neuroanatomy — Cerebellum</p></div>
+<div class="quiz-card" id="quiz-card-16"><p><strong>Q16. Compare and contrast the structural and functional organization of PNS myelinated axons versus CNS myelinated axons, including the cell types involved, the number of axons each cell type can myelinate, and the chemical composition differences.</strong></p>
+<p><strong>Model Answer:</strong> In the PNS, myelinated axons are surrounded by myelin sheath, then Schwann cell (lemmocyte), then basal lamina, then endoneurium. Each Schwann cell myelinates only one segment of a single axon, and a chain of Schwann cells is needed along one axon. PNS myelin is richer in phospholipid and has less glycolipid than CNS myelin. Schwann cells are derived from the neural crest. In the CNS, oligodendrocytes produce myelin; a single oligodendrocyte can myelinate multiple axons simultaneously. CNS myelin has more glycolipid and less phospholipid than PNS myelin. CNS myelinated axons lack a basal lamina and endoneurium. Nodes of Ranvier occur at the junction between adjacent Schwann cells in the PNS and between adjacent oligodendrocyte processes in the CNS. Unlike PNS axons, CNS axons generally do not regenerate after injury, partly because CNS myelin contains proteins that inhibit axonal regeneration.</p>
+<p><strong>Key points required:</strong></p>
+<ul>
+<li>PNS: Schwann cells (lemmocytes), one cell → one axon segment</li>
+<li>CNS: oligodendrocytes, one cell → multiple axons</li>
+<li>Chemical composition difference (PNS more phospholipid, CNS more glycolipid)</li>
+<li>Structural layers in PNS (basal lamina, endoneurium) absent in CNS</li>
+<li>Nodes of Ranvier location differences</li>
+<li>Regeneration capacity difference</li>
+</ul>
+<p><strong>Bloom Level:</strong> Analyze <strong>Topic:</strong> Neurohistology — Myelin / Axons</p></div>
+<div class="quiz-card" id="quiz-card-17"><p><strong>Q17. A 45-year-old patient develops progressive weakness starting in the hands, with muscle wasting, fasciculations, and difficulty swallowing. The diagnosis is amyotrophic lateral sclerosis (ALS). Explain why ALS is considered both an upper and lower motor neuron disease, and describe how this differs from a pure lower motor neuron disease such as poliomyelitis.</strong></p>
+<p><strong>Model Answer:</strong> ALS is called amyotrophic lateral sclerosis because it affects both lower motor neurons and upper motor neurons. “Amyotrophic” refers to muscle wasting caused by lower motor neuron degeneration in the spinal cord and brainstem ventral horns. “Lateral sclerosis” refers to the hardening (gliosis) of the lateral corticospinal tracts due to upper motor neuron degeneration. In ALS, both upper and lower motor neuron signs coexist: lower motor neuron signs include muscle wasting, fasciculations, and flaccid weakness; upper motor neuron signs include spasticity, hyperreflexia, and Babinski sign. In contrast, poliomyelitis is a pure lower motor neuron disease because the poliovirus travels retrogradely along motor axons to destroy motor neuron cell bodies in the spinal cord and brainstem, but it does not affect the corticospinal tract upper motor neurons. Therefore, polio causes pure flaccid paralysis without spasticity or upper motor neuron signs.</p>
+<p><strong>Key points required:</strong></p>
+<ul>
+<li>ALS affects both upper and lower motor neurons</li>
+<li>Lower motor neuron signs: wasting, fasciculations, flaccidity</li>
+<li>Upper motor neuron signs: spasticity, hyperreflexia, Babinski</li>
+<li>“Amyotrophic” = lower MN degeneration; “lateral sclerosis” = upper MN tract degeneration</li>
+<li>Polio is pure lower MN disease (retrograde axonal transport to cell bodies)</li>
+<li>Polio causes only flaccid paralysis, no upper MN signs</li>
+</ul>
+<p><strong>Bloom Level:</strong> Analyze <strong>Topic:</strong> Neurology — Neurodegenerative Diseases / Motor Signs</p></div>
+<div class="quiz-card" id="quiz-card-18"><h2 id="evaluate">Evaluate</h2>
+<p><strong>Q18. A medical student argues that “most neurological conditions only affect elderly people, and since I am young, I do not need to worry about them.” Evaluate this claim using evidence from at least three different neurological disorders discussed in the course material.</strong></p>
+<p><strong>Model Answer:</strong> This claim is incorrect. First, multiple sclerosis is a relatively common cause of neurological disability that primarily affects young adults, with women affected up to three times more than men. Second, epilepsy can occur at any age and can be triggered by trauma, tumors, infections, or genetic factors — it is not limited to the elderly. Third, neural tube defects such as spina bifida occur during fetal development due to folate deficiency and cause paralysis at birth. Fourth, poliomyelitis primarily affects children and young adults, and was once a major cause of paralysis in young people worldwide. Fifth, Huntington’s disease typically appears between ages 35 and 50, which is middle age rather than elderly. Sixth, Duchenne muscular dystrophy begins between ages 1 and 5 and causes progressive paralysis in childhood. While some disorders like Alzheimer’s disease and Parkinson’s disease are more common in older adults, the claim that “most” neurological conditions affect only the elderly is a dangerous misconception that ignores the substantial burden of neurological disease across all age groups.</p>
+<p><strong>Key points required:</strong></p>
+<ul>
+<li>Identifies claim as incorrect/misleading</li>
+<li>MS affects young adults</li>
+<li>Epilepsy affects all ages</li>
+<li>NTDs/congenital disorders affect infants</li>
+<li>Polio affects children/young adults</li>
+<li>Huntington’s or DMD affects younger/middle-aged individuals</li>
+<li>Acknowledges some disorders are age-related (Alzheimer’s, Parkinson’s) but rejects “only elderly” generalization</li>
+</ul>
+<p><strong>Bloom Level:</strong> Evaluate <strong>Topic:</strong> Neurology — Neurological Disorders (General)</p></div>
+<div class="quiz-card" id="quiz-card-19"><h2 id="visual-quiz">Visual Quiz — Identify the Structures</h2>
+<figure>
+<img src="images/quiz-brain-regions.jpg" alt="Brain sagittal section showing major regions" loading="eager" style="max-width:100%;max-height:320px;display:block;margin:0 auto;border-radius:8px;border:1px solid #e2e8f0;" />
+<figcaption>Diagram A: Midsagittal brain section</figcaption>
+</figure>
+<p><strong>Q19. In Diagram A, which structure serves as the major sensory relay station, receiving input from all senses except smell and projecting to the cerebral cortex?</strong></p>
+<ol type="A">
+<li>Hypothalamus</li>
+<li>Thalamus</li>
+<li>Midbrain</li>
+<li>Cerebellum</li>
+</ol>
+<button class="reveal-btn" onclick="toggleAnswer(&quot;quiz-card-19&quot;)">Reveal Answer</button><div class="answer-block" id="ans-quiz-card-19"><p><strong>Answer:</strong> B <strong>Explanation:</strong> The thalamus is the central relay station for sensory pathways (except olfaction). The hypothalamus controls survival functions and endocrine output. The midbrain is part of the brainstem containing the superior and inferior colliculi. The cerebellum coordinates movement and balance. <strong>Bloom Level:</strong> Understand <strong>Topic:</strong> Neuroanatomy — Diencephalon</p></div></div>
+<div class="quiz-card" id="quiz-card-20"><figure>
+<img src="images/quiz-spinal-cord.jpg" alt="Spinal cord cross-section" loading="eager" style="max-width:100%;max-height:320px;display:block;margin:0 auto;border-radius:8px;border:1px solid #e2e8f0;" />
+<figcaption>Diagram B: Spinal cord cross-section</figcaption>
+</figure>
+<p><strong>Q20. In Diagram B, motor neurons that directly innervate skeletal muscles are located in which region?</strong></p>
+<ol type="A">
+<li>Dorsal horn (laminae 1–4)</li>
+<li>Dorsal root ganglion</li>
+<li>Ventral horn (lamina 9)</li>
+<li>Lateral funiculus</li>
+</ol>
+<button class="reveal-btn" onclick="toggleAnswer(&quot;quiz-card-20&quot;)">Reveal Answer</button><div class="answer-block" id="ans-quiz-card-20"><p><strong>Answer:</strong> C <strong>Explanation:</strong> Alpha motor neurons are located in lamina 9 of the ventral horn. The dorsal horn (A) receives sensory input. The dorsal root ganglion (B) contains sensory neuron cell bodies outside the spinal cord. The lateral funiculus (D) is a white matter column, not grey matter. <strong>Bloom Level:</strong> Understand <strong>Topic:</strong> Neuroanatomy — Spinal Cord</p></div></div>
+<div class="quiz-card" id="quiz-card-21"><figure>
+<img src="images/quiz-synapse.jpg" alt="Chemical synapse structure" loading="eager" style="max-width:100%;max-height:320px;display:block;margin:0 auto;border-radius:8px;border:1px solid #e2e8f0;" />
+<figcaption>Diagram C: Chemical synapse</figcaption>
+</figure>
+<p><strong>Q21. In Diagram C, the membrane-bound sacs containing neurotransmitter molecules in the presynaptic terminal are called:</strong></p>
+<ol type="A">
+<li>Nissl bodies</li>
+<li>Synaptic vesicles</li>
+<li>Dendritic spines</li>
+<li>Postsynaptic thickenings</li>
+</ol>
+<button class="reveal-btn" onclick="toggleAnswer(&quot;quiz-card-21&quot;)">Reveal Answer</button><div class="answer-block" id="ans-quiz-card-21"><p><strong>Answer:</strong> B <strong>Explanation:</strong> Synaptic vesicles store and release neurotransmitters into the synaptic cleft. Nissl bodies (A) are RER clusters in the neuronal soma. Dendritic spines (C) are protrusions on dendrites for synaptic contact. Postsynaptic thickenings (D) are dense specializations on the postsynaptic membrane. <strong>Bloom Level:</strong> Remember <strong>Topic:</strong> Neurohistology — Synapse</p></div></div>
+<div class="quiz-card" id="quiz-card-22"><h2 id="extended-quiz">Extended Quiz — Additional Questions</h2>
+<p><strong>Q22. A 55-year-old patient presents with a resting tremor, rigidity, and difficulty initiating movements. Deep brain stimulation of which structure can alleviate these symptoms?</strong></p>
+<ol type="A">
+<li>Ventrolateral thalamus</li>
+<li>Subthalamic nucleus</li>
+<li>Inferior olive</li>
+<li>Red nucleus</li>
+</ol>
+<button class="reveal-btn" onclick="toggleAnswer(&quot;quiz-card-22&quot;)">Reveal Answer</button><div class="answer-block" id="ans-quiz-card-22"><p><strong>Answer:</strong> B <strong>Explanation:</strong> The subthalamic nucleus is a key target for deep brain stimulation in Parkinson's disease. It is part of the basal ganglia indirect pathway and its inhibition helps restore motor function. The ventrolateral thalamus (A) receives cerebellar and pallidal input but is not the primary DBS target. The inferior olive (C) provides climbing fibers to the cerebellum. The red nucleus (D) gives rise to the rubrospinal tract. <strong>Bloom Level:</strong> Apply <strong>Topic:</strong> Neurology — Parkinson's Disease / Neuroanatomy — Basal Ganglia</p></div></div>
+<div class="quiz-card" id="quiz-card-23"><p><strong>Q23. Which of the following correctly lists the meningeal layers from outermost to innermost?</strong></p>
+<ol type="A">
+<li>Pia mater → Arachnoid mater → Dura mater</li>
+<li>Dura mater → Arachnoid mater → Pia mater</li>
+<li>Arachnoid mater → Dura mater → Pia mater</li>
+<li>Dura mater → Pia mater → Arachnoid mater</li>
+</ol>
+<button class="reveal-btn" onclick="toggleAnswer(&quot;quiz-card-23&quot;)">Reveal Answer</button><div class="answer-block" id="ans-quiz-card-23"><p><strong>Answer:</strong> B <strong>Explanation:</strong> The three meningeal layers from outside to inside are: Dura mater (tough outer layer), Arachnoid mater (middle, web-like), and Pia mater (inner, adherent to brain surface). The epidural space is between skull and dura; the subarachnoid space (between arachnoid and pia) contains CSF. <strong>Bloom Level:</strong> Remember <strong>Topic:</strong> Neuroanatomy — Meninges / Blood Supply &amp; CSF</p></div></div>
+<div class="quiz-card" id="quiz-card-24"><p><strong>Q24. Neural crest cells migrate from the dorsal neural tube and give rise to all of the following EXCEPT:</strong></p>
+<ol type="A">
+<li>Dorsal root ganglion neurons</li>
+<li>Schwann cells</li>
+<li>Melanocytes</li>
+<li>Oligodendrocytes</li>
+</ol>
+<button class="reveal-btn" onclick="toggleAnswer(&quot;quiz-card-24&quot;)">Reveal Answer</button><div class="answer-block" id="ans-quiz-card-24"><p><strong>Answer:</strong> D <strong>Explanation:</strong> Oligodendrocytes are derived from the neural tube (CNS), NOT from the neural crest. Neural crest gives rise to PNS components (dorsal root ganglia, Schwann cells, satellite cells), melanocytes, and facial bones/muscles. This is a classic distinction: CNS glia (oligodendrocytes, astrocytes, microglia, ependyma) come from the neural tube; PNS glia (Schwann cells, satellite cells) come from the neural crest. <strong>Bloom Level:</strong> Analyze <strong>Topic:</strong> Neuroanatomy — Development / Neural Crest Derivatives</p></div></div>
+<div class="quiz-card" id="quiz-card-25"><h2 id="answer-key">Answer Key</h2>
+<table>
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 25%" />
+<col style="width: 21%" />
+<col style="width: 40%" />
+</colgroup>
+<thead>
+<tr>
+<th>Q#</th>
+<th>Answer</th>
+<th>Topic</th>
+<th>Bloom Level</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Schwann (lemmocyte) / oligodendrocyte</td>
+<td>Neurohistology — Glial Cells and Myelin</td>
+<td>Remember</td>
+</tr>
+<tr>
+<td>2</td>
+<td>sonic hedgehog (Shh) / Wnt</td>
+<td>Neuroanatomy — Development</td>
+<td>Remember</td>
+</tr>
+<tr>
+<td>3</td>
+<td>C</td>
+<td>Neurology — Motor Signs / Spinal Cord</td>
+<td>Understand</td>
+</tr>
+<tr>
+<td>4</td>
+<td>C</td>
+<td>Neuroanatomy — Sensory Systems</td>
+<td>Understand</td>
+</tr>
+<tr>
+<td>5</td>
+<td>D</td>
+<td>Neuroanatomy — Cerebellum</td>
+<td>Understand</td>
+</tr>
+<tr>
+<td>6</td>
+<td>B</td>
+<td>Neuroanatomy — Hypothalamus</td>
+<td>Understand</td>
+</tr>
+<tr>
+<td>7</td>
+<td>B</td>
+<td>Neurology — Stroke / Motor Systems</td>
+<td>Apply</td>
+</tr>
+<tr>
+<td>8</td>
+<td>B</td>
+<td>Neurology — Motor Signs / Basal Ganglia</td>
+<td>Apply</td>
+</tr>
+<tr>
+<td>9</td>
+<td>B</td>
+<td>Neuroanatomy — Sensory Systems / Sensory Loss</td>
+<td>Apply</td>
+</tr>
+<tr>
+<td>10</td>
+<td>B</td>
+<td>Neurohistology — Myelin / Demyelination</td>
+<td>Apply</td>
+</tr>
+<tr>
+<td>11</td>
+<td>B</td>
+<td>Neurology — MS / Cerebellum</td>
+<td>Analyze</td>
+</tr>
+<tr>
+<td>12</td>
+<td>B</td>
+<td>Neurohistology — Glial Cells</td>
+<td>Analyze</td>
+</tr>
+<tr>
+<td>13</td>
+<td>B</td>
+<td>Neuroanatomy — Brain Stem / Precerebellar Nuclei</td>
+<td>Analyze</td>
+</tr>
+<tr>
+<td>14</td>
+<td>See model answer</td>
+<td>Neurology — Motor Signs / Motor Systems</td>
+<td>Apply</td>
+</tr>
+<tr>
+<td>15</td>
+<td>See model answer</td>
+<td>Neuroanatomy — Cerebellum</td>
+<td>Analyze</td>
+</tr>
+<tr>
+<td>16</td>
+<td>See model answer</td>
+<td>Neurohistology — Myelin / Axons</td>
+<td>Analyze</td>
+</tr>
+<tr>
+<td>17</td>
+<td>See model answer</td>
+<td>Neurology — ALS / Motor Signs</td>
+<td>Analyze</td>
+</tr>
+<tr>
+<td>18</td>
+<td>See model answer</td>
+<td>Neurology — Neurological Disorders</td>
+<td>Evaluate</td>
+</tr>
+<tr>
+<td>19</td>
+<td>B</td>
+<td>Neuroanatomy — Diencephalon</td>
+<td>Understand</td>
+</tr>
+<tr>
+<td>20</td>
+<td>C</td>
+<td>Neuroanatomy — Spinal Cord</td>
+<td>Understand</td>
+</tr>
+<tr>
+<td>21</td>
+<td>B</td>
+<td>Neurohistology — Synapse</td>
+<td>Remember</td>
+</tr>
+<tr>
+<td>22</td>
+<td>B</td>
+<td>Neurology — Parkinson's Disease</td>
+<td>Apply</td>
+</tr>
+<tr>
+<td>23</td>
+<td>B</td>
+<td>Neuroanatomy — Meninges / CSF</td>
+<td>Remember</td>
+</tr>
+<tr>
+<td>24</td>
+<td>D</td>
+<td>Neuroanatomy — Development / Neural Crest</td>
+<td>Analyze</td>
+</tr>
+</tbody>
+</table></div>
+<div class="quiz-card" id="quiz-card-26"><h2 id="weak-area-diagnostic">Weak Area Diagnostic</h2>
+<p>After taking this quiz, review the following topics if you answered incorrectly:</p>
+<ul>
+<li><p><strong>Upper vs. lower motor neuron signs:</strong> Make sure you can distinguish spastic paralysis (increased tone, hyperreflexia, Babinski, no wasting) from flaccid paralysis (decreased tone, loss of reflexes, muscle wasting). This is one of the most clinically important distinctions in neurology.</p></li>
+<li><p><strong>Spinal cord sensory pathways:</strong> Focus on where fibers cross for the dorsal column pathway (hindbrain) versus the spinothalamic tract (spinal cord), and what sensations each carries. Drawing the pathways helps.</p></li>
+<li><p><strong>Cerebellar connections and symptoms:</strong> The cerebellum is ipsilateral (not contralateral) due to double decussation. Classic cerebellar damage causes intention tremor, ataxia, and dysmetria — not just balance problems.</p></li>
+<li><p><strong>Glial cell functions:</strong> Astrocytes are active metabolic and synaptic regulators, not just “support cells.” Oligodendrocytes myelinate multiple CNS axons; Schwann cells myelinate one PNS axon segment.</p></li>
+<li><p><strong>Brain stem cross-sectional anatomy:</strong> Be able to identify the pontine nuclei, inferior olive, and cerebellar peduncles and know which precerebellar nucleus projects via which peduncle.</p></li>
+<li><p><strong>Tremor types:</strong> Resting tremor (Parkinson’s) decreases with movement; action/intention tremor (cerebellar) increases with movement. Do not confuse these.</p></li>
+<li><p><strong>Demyelination diseases:</strong> Know the difference between CNS demyelination (MS, oligodendrocytes) and PNS demyelination (peripheral neuropathy, Schwann cells), and why CNS axons fail to regenerate.</p></li>
+<li><p><strong>Neurological conditions across age groups:</strong> Do not assume neurological disease only affects the elderly. MS, epilepsy, NTDs, polio, and Huntington’s all affect younger populations.</p></li>
+<li><p><strong>Visual identification:</strong> Be able to identify major brain regions (thalamus, hypothalamus, brainstem, cerebellum) on a sagittal section, spinal cord grey/white matter regions, and synaptic structures. These are common exam diagram questions.</p></li>
+<li><p><strong>Meninges and CSF:</strong> Know the three meningeal layers in order (dura → arachnoid → pia) and the spaces between them. CSF is produced by the choroid plexus in the ventricles.</p></li>
+<li><p><strong>Neural crest derivatives:</strong> Neural crest → PNS components (DRG, Schwann cells), melanocytes, facial bones. CNS glia (oligodendrocytes, astrocytes) come from the NEURAL TUBE — a classic exam distinction.</p></li>
+<li><p><strong>Deep brain stimulation targets:</strong> Parkinson’s DBS targets include the subthalamic nucleus and zona incerta. Know the underlying basal ganglia circuitry (direct/indirect pathways).</p></li>
+</ul></div>
+    </section>
+  </main>
+</div>
+
+<script>
+// Sidebar toggle (shared across all pages)
+var sidebar = document.getElementById('sidebar');
+var toggle = document.getElementById('sidebarToggle');
+var saved = localStorage.getItem('sidebar-collapsed');
+if (saved === 'true') { sidebar.classList.add('collapsed'); toggle.textContent = '☰'; }
+toggle.addEventListener('click', function() {
+  var c = sidebar.classList.toggle('collapsed');
+  toggle.textContent = c ? '☰' : '✕';
+  localStorage.setItem('sidebar-collapsed', c);
+});
+</script>
+
+<script>
+function toggleAnswer(id) { var el = document.getElementById('ans-' + id); if (el) el.classList.toggle('visible'); }
+</script>
+
+</body>
+</html>

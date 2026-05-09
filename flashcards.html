@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flashcards — IB Neuroscience</title>
+<style>
+:root {
+  --bg: #f0f2f5;
+  --surface: #ffffff;
+  --text: #1a1a2e;
+  --text-secondary: #64748b;
+  --accent: #2563eb;
+  --accent-light: #eff6ff;
+  --border: #e2e8f0;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.08);
+  --radius: 12px;
+  --sidebar-width: 250px;
+  --sidebar-collapsed: 56px;
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app { display: flex; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 20px 16px;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 200;
+  transition: width var(--transition), padding var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar.collapsed {
+  width: var(--sidebar-collapsed);
+  padding: 20px 10px;
+}
+
+.sidebar-toggle {
+  position: absolute;
+  top: 14px; right: 12px;
+  width: 30px; height: 30px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.sidebar-toggle:hover { background: var(--bg); color: var(--text); border-color: var(--accent); }
+
+.sidebar-header {
+  margin-bottom: 24px;
+  padding-right: 36px;
+  flex-shrink: 0;
+}
+
+.brand {
+  font-size: 17px; font-weight: 700; color: var(--text);
+  margin-bottom: 2px; letter-spacing: -0.3px;
+  white-space: nowrap; overflow: hidden;
+}
+
+.brand-sub {
+  font-size: 11px; color: var(--text-secondary);
+  white-space: nowrap; overflow: hidden;
+}
+
+.sidebar.collapsed .brand,
+.sidebar.collapsed .brand-sub { opacity: 0; transition: opacity 0.12s; }
+
+.nav { list-style: none; flex: 1; }
+.nav li { margin-bottom: 2px; }
+
+.nav a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 8px;
+  color: var(--text-secondary); text-decoration: none;
+  font-size: 13.5px; font-weight: 500;
+  transition: all 0.15s;
+  white-space: nowrap; overflow: hidden;
+}
+
+.nav a .nav-icon { font-size: 17px; flex-shrink: 0; width: 22px; text-align: center; }
+.nav a .nav-label { opacity: 1; transition: opacity 0.12s; }
+
+.sidebar.collapsed .nav a .nav-label { opacity: 0; width: 0; }
+.sidebar.collapsed .nav a { padding: 10px; justify-content: center; }
+
+.nav a:hover { background: var(--bg); color: var(--text); }
+.nav a.active { background: var(--accent-light); color: var(--accent); }
+
+/* Main */
+.main {
+  margin-left: var(--sidebar-width);
+  flex: 1; max-width: 900px; padding: 40px 36px;
+  transition: margin-left var(--transition);
+}
+
+.sidebar.collapsed ~ .main { margin-left: var(--sidebar-collapsed); }
+
+.section {
+  background: var(--surface); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 40px 44px;
+  border: 1px solid var(--border);
+}
+
+.section h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+.section h2 {
+  font-size: 19px; font-weight: 600; margin-top: 32px; margin-bottom: 14px;
+  padding-bottom: 10px; border-bottom: 2px solid var(--accent-light);
+}
+.section h3 { font-size: 16px; font-weight: 600; margin-top: 24px; margin-bottom: 10px; }
+.section p { margin-bottom: 14px; }
+.section ul, .section ol { margin-left: 22px; margin-bottom: 16px; }
+.section li { margin-bottom: 7px; }
+.section hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+.section blockquote {
+  border-left: 3px solid var(--accent); background: var(--accent-light);
+  padding: 14px 18px; margin: 18px 0; border-radius: 0 8px 8px 0;
+  font-style: normal;
+}
+.section blockquote p { margin-bottom: 0; }
+.section code {
+  background: var(--bg); padding: 2px 7px; border-radius: 5px;
+  font-size: 13px; font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+}
+.section pre {
+  background: #1e1e2e; color: #e4e4e7; padding: 18px;
+  border-radius: 8px; overflow-x: auto; font-size: 13px; line-height: 1.6; margin-bottom: 18px;
+}
+.section table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 14px; }
+.section th, .section td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--border); }
+.section th {
+  font-weight: 600; background: var(--bg); font-size: 12px;
+  text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-secondary);
+}
+.section tr:hover td { background: #f8fafc; }
+.section figure { margin: 28px 0; text-align: center; }
+.section figure img {
+  max-width: 100%; height: auto; border-radius: 8px;
+  border: 1px solid var(--border); display: block; margin: 0 auto; box-shadow: var(--shadow-sm);
+}
+.section figcaption { font-size: 13px; color: var(--text-secondary); margin-top: 10px; font-style: italic; }
+
+/* Glossary Cross-Reference */
+.glossary-term {
+  border-bottom: 1.5px dotted var(--accent); cursor: help; color: var(--accent); transition: background 0.15s;
+}
+.glossary-term:hover { background: var(--accent-light); border-bottom-style: solid; }
+.glossary-tooltip {
+  position: fixed; z-index: 1000; max-width: 340px; padding: 14px 18px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  box-shadow: var(--shadow-lg); font-size: 14px; line-height: 1.55;
+  pointer-events: none; opacity: 0; transform: translateY(4px);
+  transition: opacity 0.18s, transform 0.18s;
+}
+.glossary-tooltip.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.glossary-tooltip strong { display: block; font-size: 15px; margin-bottom: 4px; color: var(--accent); }
+.glossary-tooltip .tt-jump {
+  display: inline-block; margin-top: 8px; font-size: 12px; color: var(--accent);
+  text-decoration: none; border-bottom: 1px solid var(--accent);
+}
+.glossary-tooltip .tt-jump:hover { text-decoration: underline; border-bottom: none; }
+.glossary-list li:target {
+  background: var(--accent-light); outline: 2px solid var(--accent); outline-offset: -2px;
+  border-radius: 8px; animation: flash-highlight 1.5s ease-out;
+}
+@keyframes flash-highlight { from { background: #bfdbfe; } to { background: var(--accent-light); } }
+
+/* Glossary */
+.glossary-list { list-style: none; margin-left: 0 !important; }
+.glossary-list li {
+  padding: 11px 15px; border-radius: 8px; margin-bottom: 6px; background: var(--bg); transition: background 0.15s;
+}
+.glossary-list li:hover { background: #e8ecf1; }
+.glossary-search {
+  width: 100%; padding: 11px 16px; border: 1.5px solid var(--border); border-radius: 10px;
+  font-size: 14px; margin-bottom: 22px; outline: none; transition: border-color 0.15s; background: var(--bg);
+}
+.glossary-search:focus { border-color: var(--accent); background: var(--surface); }
+
+/* Quiz */
+.quiz-intro { margin-bottom: 22px; }
+.quiz-card {
+  background: var(--bg); border-radius: 10px; padding: 22px 26px; margin-bottom: 18px;
+  border: 1px solid var(--border); transition: box-shadow 0.15s;
+}
+.quiz-card:hover { box-shadow: var(--shadow); }
+.quiz-card ol { margin-left: 22px; margin-top: 12px; margin-bottom: 12px; }
+.quiz-card ol li { padding: 5px 0; }
+.reveal-btn {
+  background: var(--accent); color: #fff; border: none; padding: 9px 18px;
+  border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 12px; transition: all 0.15s;
+}
+.reveal-btn:hover { background: #1d4ed8; box-shadow: 0 2px 8px rgba(37,99,235,0.3); }
+.answer-block {
+  display: none; margin-top: 16px; padding: 16px 18px; background: #ecfdf5;
+  border-left: 3px solid #10b981; border-radius: 0 8px 8px 0;
+}
+.answer-block.visible { display: block; }
+
+/* Quick Quiz Slide Panel */
+.quick-quiz-toggle {
+  display: inline-block; margin-left: 10px; padding: 4px 12px;
+  border: 1px solid var(--accent); border-radius: 20px; background: var(--surface);
+  color: var(--accent); font-size: 12px; font-weight: 500; cursor: pointer;
+  vertical-align: middle; transition: all 0.15s; white-space: nowrap;
+}
+.quick-quiz-toggle:hover { background: var(--accent); color: #fff; }
+.quick-quiz-toggle.active { background: var(--accent); color: #fff; }
+
+.qq-overlay {
+  position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0);
+  pointer-events: none; transition: background 0.25s;
+}
+.qq-overlay.open { background: rgba(0,0,0,0.3); pointer-events: auto; }
+.qq-slide-panel {
+  position: fixed; top: 0; right: 0; width: 440px; max-width: 92vw; height: 100vh;
+  z-index: 501; background: var(--surface); box-shadow: -6px 0 30px rgba(0,0,0,0.12);
+  transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex; flex-direction: column; overflow-y: auto;
+}
+.qq-overlay.open .qq-slide-panel { transform: translateX(0); }
+.qq-close {
+  position: absolute; top: 16px; right: 16px; width: 32px; height: 32px;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--surface);
+  font-size: 18px; color: var(--text-secondary); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: all 0.15s; z-index: 2;
+}
+.qq-close:hover { background: var(--bg); color: var(--text); border-color: var(--accent); }
+.qq-panel-header {
+  padding: 24px 28px 16px; font-size: 18px; font-weight: 700;
+  color: var(--text); border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.qq-panel-body { padding: 20px 28px; display: flex; flex-direction: column; gap: 16px; flex: 1; overflow-y: auto; }
+.qq-slide-card { background: var(--bg); border-radius: 10px; padding: 18px 20px; border: 1px solid var(--border); }
+.qq-question { font-size: 14px; line-height: 1.6; margin-bottom: 12px; color: var(--text); }
+.qq-blank {
+  display: inline-block; min-width: 70px; border-bottom: 2px dashed var(--accent);
+  color: var(--accent); font-weight: 600; padding: 0 4px; margin: 0 2px;
+}
+.qq-reveal {
+  display: inline-block; padding: 5px 12px; border: none; border-radius: 6px;
+  background: var(--accent); color: #fff; font-size: 12px; font-weight: 500; cursor: pointer; transition: background 0.15s;
+}
+.qq-reveal:hover { background: #1d4ed8; }
+.qq-answer {
+  display: none; margin-top: 10px; padding: 10px 14px; background: #ecfdf5;
+  border-left: 3px solid #10b981; border-radius: 0 6px 6px 0;
+  font-size: 13px; font-weight: 600; color: var(--text);
+}
+.qq-answer.shown { display: block; }
+
+/* Flashcards */
+.flashcard-container { perspective: 1200px; display: flex; flex-direction: column; align-items: center; gap: 24px; }
+.flashcard {
+  width: 100%; max-width: 600px; height: 380px; position: relative; cursor: pointer;
+  transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.flashcard.flipped { transform: rotateY(180deg); }
+.flashcard-front, .flashcard-back {
+  position: absolute; inset: 0; backface-visibility: hidden; border-radius: 14px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 36px 40px; text-align: center; border: 1px solid var(--border);
+}
+.flashcard-front { background: var(--surface); box-shadow: var(--shadow-lg); }
+.flashcard-front .fc-question { font-size: 20px; font-weight: 600; line-height: 1.5; color: var(--text); }
+.flashcard-front .fc-hint { margin-top: 16px; font-size: 13px; color: var(--text-secondary); }
+.flashcard-back {
+  background: var(--accent-light); transform: rotateY(180deg); box-shadow: var(--shadow-lg);
+  overflow-y: auto; justify-content: flex-start; text-align: left;
+}
+.flashcard-back .fc-answer { font-size: 15px; line-height: 1.65; color: var(--text); }
+.flashcard-back .fc-answer table { width: 100%; margin: 8px 0; font-size: 13px; }
+.flashcard-back .fc-answer table th, .flashcard-back .fc-answer table td {
+  padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left;
+}
+.flashcard-back .fc-answer table th { background: transparent; text-transform: none; font-size: 12px; }
+.flashcard-back .fc-answer img { max-width: 100%; max-height: 200px; border-radius: 8px; margin: 10px 0; }
+.fc-controls { display: flex; align-items: center; gap: 16px; }
+.fc-nav {
+  width: 40px; height: 40px; border: 1px solid var(--border); border-radius: 50%;
+  background: var(--surface); font-size: 20px; color: var(--text); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+}
+.fc-nav:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.fc-counter { font-size: 14px; font-weight: 500; color: var(--text-secondary); min-width: 80px; text-align: center; }
+.fc-chapter-tag { font-size: 11px; color: var(--accent); background: var(--accent-light); padding: 3px 10px; border-radius: 12px; font-weight: 500; }
+
+/* PDF Section */
+.pdf-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.pdf-tab {
+  padding: 8px 16px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-secondary); font-size: 13px;
+  font-weight: 500; cursor: pointer; transition: all 0.15s;
+}
+.pdf-tab:hover { background: var(--bg); color: var(--text); }
+.pdf-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.pdf-viewer { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #525659; }
+.pdf-frame { width: 100%; height: 85vh; border: none; display: block; }
+.pdf-empty { text-align: center; color: var(--text-secondary); padding: 40px; }
+
+/* Mobile */
+@media (max-width: 768px) {
+  .sidebar { width: 100%; position: relative; height: auto; border-right: none; border-bottom: 1px solid var(--border); padding: 16px; }
+  .sidebar.collapsed { width: 100%; padding: 16px; }
+  .sidebar-toggle { display: none; }
+  .main { margin-left: 0 !important; padding: 24px 16px; }
+  .app { flex-direction: column; }
+  .nav { display: flex; gap: 6px; overflow-x: auto; }
+  .nav li { margin-bottom: 0; }
+  .section { padding: 24px 20px; }
+  .pdf-frame { height: 60vh; }
+  .flashcard { height: 300px; }
+  .flashcard-front .fc-question { font-size: 17px; }
+  .flashcard-front, .flashcard-back { padding: 24px 22px; }
+  .qq-slide-panel { width: 100vw; max-width: 100vw; border-radius: 0; }
+  .qq-panel-header { padding: 20px 20px 14px; font-size: 16px; }
+  .qq-panel-body { padding: 16px 20px; }
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">☰</button>
+    <div class="sidebar-header">
+      <div class="brand">IB Neuroscience</div>
+      <div class="brand-sub">Study Hub</div>
+    </div>
+    <ul class="nav">
+      <li><a href="index.html" class=""><span class="nav-icon">📝</span><span class="nav-label">Deep Notes</span></a></li>
+      <li><a href="pop-quiz.html" class=""><span class="nav-icon">✅</span><span class="nav-label">Pop Quiz</span></a></li>
+      <li><a href="flashcards.html" class="active"><span class="nav-icon">🃏</span><span class="nav-label">Flashcards</span></a></li>
+      <li><a href="blog.html" class=""><span class="nav-icon">📰</span><span class="nav-label">Blog</span></a></li>
+      <li><a href="source-pdfs.html" class=""><span class="nav-icon">📄</span><span class="nav-label">Source PDFs</span></a></li>
+    </ul>
+  </aside>
+  <main class="main">
+    <section class="section">
+      <h1 id="flashcards-title">Flashcards</h1>
+<p style="color:var(--text-secondary);margin-bottom:24px">Click card to flip. Arrow keys to navigate. Space to flip.</p>
+<div class="flashcard-container" id="flashcardContainer">
+  <div class="flashcard" id="flashcard" onclick="this.classList.toggle('flipped')">
+    <div class="flashcard-front">
+      <div class="fc-question" id="fcQuestion"></div>
+      <div class="fc-hint" id="fcHint">&#x1F0CF; Click to reveal</div>
+    </div>
+    <div class="flashcard-back">
+      <div class="fc-answer" id="fcAnswer"></div>
+    </div>
+  </div>
+  <div class="fc-controls">
+    <button class="fc-nav" id="fcPrev" title="Previous">&#x25C0;</button>
+    <span class="fc-counter" id="fcCounter">1 / 15</span>
+    <button class="fc-nav" id="fcNext" title="Next">&#x25B6;</button>
+  </div>
+  <div class="fc-chapter-tag" id="fcChapter"></div>
+</div>
+    </section>
+  </main>
+</div>
+
+<script>
+// Sidebar toggle (shared across all pages)
+var sidebar = document.getElementById('sidebar');
+var toggle = document.getElementById('sidebarToggle');
+var saved = localStorage.getItem('sidebar-collapsed');
+if (saved === 'true') { sidebar.classList.add('collapsed'); toggle.textContent = '☰'; }
+toggle.addEventListener('click', function() {
+  var c = sidebar.classList.toggle('collapsed');
+  toggle.textContent = c ? '☰' : '✕';
+  localStorage.setItem('sidebar-collapsed', c);
+});
+</script>
+
+<script>
+// ===== Flashcard Deck =====
+var FLASHCARD_DECK = [
+  // Chapter 1: Neurohistology
+  {
+    front: 'What are the four types of CNS glial cells and their primary functions?',
+    back: '<strong>Astrocytes</strong> — recycle neurotransmitters, maintain ionic balance, form blood-brain barrier<br><strong>Oligodendrocytes</strong> — myelinate MULTIPLE CNS axons<br><strong>Microglia</strong> — immune defense<br><strong>Ependyma</strong> — line ventricles, circulate CSF',
+    image: null,
+    chapter: 'Neurohistology'
+  },
+  {
+    front: 'How does myelination differ between the CNS and PNS?',
+    back: '<strong>CNS:</strong> One <strong>oligodendrocyte</strong> myelinates <em>multiple</em> axons. No basal lamina. More glycolipid.<br><strong>PNS:</strong> One <strong>Schwann cell</strong> myelinates <em>one</em> axon segment. Has basal lamina + endoneurium. More phospholipid.',
+    image: 'images/flashcard-myelin.jpg',
+    chapter: 'Neurohistology'
+  },
+  {
+    front: 'What are the three structural components of a neuron?',
+    back: '1. <strong>Cell body (soma)</strong> — contains nucleus and Nissl bodies (RER)<br>2. <strong>Dendrites</strong> — receive input, have dendritic spines<br>3. <strong>Axon</strong> — conducts action potentials, <em>lacks</em> Nissl bodies, may be myelinated or unmyelinated',
+    image: null,
+    chapter: 'Neurohistology'
+  },
+  // Chapter 2: Development
+  {
+    front: 'How does the neural tube form, and what does the neural crest become?',
+    back: '<strong>Neural plate</strong> (ectoderm) curls → <strong>neural tube</strong> (→ CNS).<br>Cells from dorsal tube break away as <strong>neural crest</strong> → <strong>PNS</strong>, melanocytes, facial bones/muscles.<br>Ventral: <strong>Shh</strong> → basal plate (motor). Dorsal: <strong>BMP/Wnt</strong> → alar plate (sensory).',
+    image: 'images/flashcard-neuraltube.jpg',
+    chapter: 'Development'
+  },
+  {
+    front: 'What are neuromeres, and how many does each brain region have?',
+    back: 'Neuromeres are transverse segments defined by gene expression:<br><strong>Forebrain:</strong> 5 (incl. hypothalamus + 3 prosomeres)<br><strong>Midbrain:</strong> 2 (m1, m2)<br><strong>Hindbrain:</strong> 12 (isthmus + 11 rhombomeres r1–r11)<br>Rhombomeres r2–r11 defined by <strong>Hox genes</strong>.',
+    image: null,
+    chapter: 'Development'
+  },
+  {
+    front: 'What developmental insults affect the nervous system, and how can they be prevented?',
+    back: '<table><tr><th>Insult</th><th>Effect</th><th>Prevention</th></tr><tr><td>Folate deficiency</td><td>Spina bifida</td><td>Folate supplement</td></tr><tr><td>Alcohol</td><td>Fetal alcohol syndrome</td><td>Avoid in first 8 weeks</td></tr><tr><td>Rubella</td><td>Deafness, blindness</td><td>Vaccination</td></tr><tr><td>Iodine deficiency</td><td>Hypothyroidism</td><td>Iodized salt</td></tr></table>',
+    image: null,
+    chapter: 'Development'
+  },
+  // Chapter 3: Neuroanatomy
+  {
+    front: 'Describe the internal organization of the spinal cord grey matter.',
+    back: 'Butterfly-shaped, 6 functional regions:<br><strong>Dorsal horn</strong> (laminae 1–4) — sensory<br><strong>Ventral horn</strong> (laminae 7–9) — motor; lamina 9 = limb/trunk motor neurons<br><strong>Lamina 5</strong> — pattern generators<br><strong>Lamina 6</strong> — small, not at all levels',
+    image: null,
+    chapter: 'Neuroanatomy'
+  },
+  {
+    front: 'Why does the cerebellum have an ipsilateral connection with the body?',
+    back: '<strong>Double decussation:</strong><br>1. Cerebellar output → <strong>superior cerebellar peduncle</strong> crosses in midbrain<br>2. <strong>Corticospinal tract</strong> crosses at pyramidal decussation<br>Two crossings bring control back to the <strong>same side</strong>.<br>→ Cerebellar damage causes <em>ipsilateral</em> symptoms.',
+    image: 'images/flashcard-spinalcord.jpg',
+    chapter: 'Neuroanatomy'
+  },
+  {
+    front: 'Name the three cerebellar peduncles and their contents.',
+    back: '<strong>Inferior</strong> (entering): spinal cord + inferior olive fibers<br><strong>Middle</strong> (entering): pontine nuclei fibers (massive)<br><strong>Superior</strong> (leaving): output to red nucleus + thalamus<br><br>Mnemonic: <em>In Comes Spinach, Mid Comes Pontine, Superior Sends Out</em>',
+    image: null,
+    chapter: 'Neuroanatomy'
+  },
+  // Chapter 4: Functional Systems
+  {
+    front: 'Compare the dorsal column pathway and the spinothalamic tract.',
+    back: '<table><tr><th></th><th>Dorsal Column</th><th>Spinothalamic</th></tr><tr><td>Carries</td><td>Touch, vibration, proprioception</td><td>Pain, temperature, crude touch</td></tr><tr><td>Crosses at</td><td><strong>Hindbrain</strong> (internal arcuate fibers)</td><td><strong>Spinal cord</strong> (anterior white commissure)</td></tr><tr><td>Synapses</td><td>Gracile/cuneate nuclei</td><td>Substantia gelatinosa</td></tr></table>',
+    image: null,
+    chapter: 'Functional Systems'
+  },
+  {
+    front: 'Describe the course of the corticospinal tract.',
+    back: 'Primary motor cortex (precentral gyrus) → <strong>internal capsule</strong> → cerebral peduncle → basilar pons → <strong>medullary pyramid</strong> → <strong>pyramidal decussation</strong> (crosses) → spinal cord (laminae 5–7, 9)<br><br>Controls <strong>fine distal limb movements</strong>. Internal capsule is common stroke site.',
+    image: 'images/flashcard-corticospinal.jpg',
+    chapter: 'Functional Systems'
+  },
+  {
+    front: 'Compare sympathetic and parasympathetic divisions.',
+    back: '<table><tr><th></th><th>Sympathetic</th><th>Parasympathetic</th></tr><tr><td>Origin</td><td>T1–L2</td><td>Brainstem + S2–S4</td></tr><tr><td>Ganglia</td><td>Paravertebral chain</td><td>Near target organ</td></tr><tr><td>Preganglionic</td><td>Short, ACh</td><td>Long, ACh</td></tr><tr><td>Postganglionic</td><td>Long, <strong>Noradrenaline</strong></td><td>Short, <strong>ACh</strong></td></tr><tr><td>Function</td><td>Fight or flight</td><td>Rest and digest</td></tr></table>',
+    image: 'images/flashcard-ans.jpg',
+    chapter: 'Functional Systems'
+  },
+  // Chapter 5: Clinical Neurology
+  {
+    front: 'How do you distinguish spastic (UMN) from flaccid (LMN) paralysis?',
+    back: '<table><tr><th></th><th>Spastic</th><th>Flaccid</th></tr><tr><td>Lesion</td><td>Corticospinal tract</td><td>Motor neuron/axon</td></tr><tr><td>Tone</td><td><strong>↑ Increased</strong></td><td><strong>↓ Decreased</strong></td></tr><tr><td>Reflexes</td><td>Hyperreflexia</td><td>Hypo-/areflexia</td></tr><tr><td>Babinski</td><td><strong>Present</strong></td><td>Absent</td></tr><tr><td>Atrophy</td><td>Mild</td><td><strong>Present</strong></td></tr></table>',
+    image: null,
+    chapter: 'Clinical Neurology'
+  },
+  {
+    front: 'What are the hallmark features of Parkinson\'s disease?',
+    back: 'Cause: <strong>Loss of dopaminergic neurons</strong> in <strong>substantia nigra</strong> (pars compacta)<br><br>Cardinal signs:<br>• <strong>Resting tremor</strong> — disappears with movement<br>• <strong>Rigidity</strong> (cogwheel)<br>• <strong>Bradykinesia/Akinesia</strong><br>• <strong>Postural instability</strong><br><br>Treatment: <strong>L-DOPA</strong>; deep brain stimulation of subthalamic nucleus or zona incerta.',
+    image: null,
+    chapter: 'Clinical Neurology'
+  },
+  {
+    front: 'Compare Multiple Sclerosis and Alzheimer\'s disease pathology.',
+    back: '<strong>Multiple Sclerosis:</strong><br>• Autoimmune attack on <strong>oligodendrocytes</strong> → CNS demyelination<br>• Relapsing-remitting course<br>• MRI: plaques; CSF: oligoclonal bands<br><br><strong>Alzheimer\'s disease:</strong><br>• Begins in <strong>hippocampus</strong> → memory loss<br>• <strong>Amyloid-β plaques</strong> (extracellular)<br>• <strong>Neurofibrillary tangles</strong> (hyperphosphorylated tau, intracellular)',
+    image: null,
+    chapter: 'Clinical Neurology'
+  }
+];
+
+// === Flashcards UI ===
+(function() {
+  var deck = FLASHCARD_DECK;
+  if (!deck || deck.length === 0) return;
+  var index = 0;
+  var card = document.getElementById("flashcard");
+  var qEl = document.getElementById("fcQuestion");
+  var aEl = document.getElementById("fcAnswer");
+  var counter = document.getElementById("fcCounter");
+  var chapter = document.getElementById("fcChapter");
+  var hint = document.getElementById("fcHint");
+
+  function show(i) {
+    index = ((i % deck.length) + deck.length) % deck.length;
+    var c = deck[index];
+    qEl.textContent = c.front;
+    aEl.innerHTML = (c.image ? '<img src="' + c.image + '" alt="mnemonic" style="max-width:100%;max-height:180px;border-radius:8px;margin-bottom:12px;display:block;" />' : '') + c.back;
+    counter.textContent = (index + 1) + " / " + deck.length;
+    chapter.textContent = c.chapter;
+    hint.textContent = "🃏 Click to reveal";
+    card.classList.remove("flipped");
+  }
+
+  document.getElementById("fcPrev").addEventListener("click", function() { show(index - 1); });
+  document.getElementById("fcNext").addEventListener("click", function() { show(index + 1); });
+  card.addEventListener("click", function() {
+    var flipped = card.classList.contains("flipped");
+    hint.textContent = flipped ? "🃏 Click to reveal" : "💡 Answer shown";
+  });
+  document.addEventListener("keydown", function(e) {
+    if (document.querySelector(".qq-overlay.open")) return;
+    if (e.key === "ArrowLeft") { show(index - 1); e.preventDefault(); }
+    if (e.key === "ArrowRight") { show(index + 1); e.preventDefault(); }
+    if (e.key === " " || e.key === "Spacebar") { card.classList.toggle("flipped"); e.preventDefault(); }
+  });
+
+  show(0);
+})();
+
+</script>
+</body>
+</html>
