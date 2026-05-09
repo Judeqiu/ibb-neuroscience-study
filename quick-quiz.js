@@ -1,17 +1,20 @@
-// ===== Quick Quiz Generation =====
+// ===== Quick Quiz - Slide Panel =====
 (function() {
-  const chapterH2s = [...document.querySelectorAll('#deep-notes h2')].filter(h =>
-    /^\d+\./.test(h.textContent.trim())
-  );
+  var chapterH2s = [...document.querySelectorAll('#deep-notes h2')].filter(function(h) {
+    return /^\d+\./.test(h.textContent.trim());
+  });
   if (chapterH2s.length === 0) return;
 
-  const allH2s = [...document.querySelectorAll('#deep-notes h2')];
-  const STOP_WORDS = new Set([
+  var allH2s = [...document.querySelectorAll('#deep-notes h2')];
+  var STOP_WORDS = new Set([
     'definition → explanation → examples → connections',
     'key takeaways','summary','learning objectives','concept map','core principle',
     'why this matters','clinical correlation','correct understanding','developmental note',
     'key point','terminology warning','common misconception'
   ]);
+
+  // === Build quiz data for each chapter ===
+  var chapterQuizzes = [];
 
   chapterH2s.forEach(function(h2) {
     var idx = allH2s.indexOf(h2);
@@ -60,31 +63,84 @@
       return { term: p.term, question: blanked };
     });
 
+    // Add toggle button to H2
     var toggle = document.createElement('button');
     toggle.className = 'quick-quiz-toggle';
-    toggle.textContent = 'Quick Quiz ▸';
-    toggle.addEventListener('click', function() {
-      var open = panel.classList.toggle('open');
-      toggle.classList.toggle('active', open);
-      toggle.textContent = open ? 'Quick Quiz ▾' : 'Quick Quiz ▸';
-    });
-
-    var panel = document.createElement('div');
-    panel.className = 'quick-quiz-panel';
-    panel.innerHTML = '<div class="quick-quiz-inner">' +
-      cards.map(function(c) { return '<div class="quick-quiz-card">' +
-        '<div class="qq-question">' + c.question + '</div>' +
-        '<button class="qq-reveal" onclick="var a=this.nextElementSibling;a.classList.toggle(&quot;shown&quot;);this.textContent=a.classList.contains(&quot;shown&quot;)?&quot;Hide&quot;:&quot;Reveal&quot;;">Reveal</button>' +
-        '<div class="qq-answer">' + c.term + '</div>' +
-      '</div>'; }).join('') +
-    '</div>';
-
+    toggle.textContent = 'Quick Quiz';
     h2.appendChild(toggle);
-    if (nextH2) {
-      nextH2.parentNode.insertBefore(panel, nextH2);
-    } else {
-      h2.parentNode.appendChild(panel);
+
+    chapterQuizzes.push({
+      title: h2.textContent.replace(/^\d+\.\s*/, '').replace(/Quick Quiz$/, '').trim(),
+      cards: cards,
+      toggle: toggle
+    });
+  });
+
+  if (chapterQuizzes.length === 0) return;
+
+  // === Build single slide panel ===
+  var overlay = document.createElement('div');
+  overlay.className = 'qq-overlay';
+
+  var panel = document.createElement('div');
+  panel.className = 'qq-slide-panel';
+  panel.innerHTML =
+    '<button class="qq-close">✕</button>' +
+    '<div class="qq-panel-header"></div>' +
+    '<div class="qq-panel-body"></div>';
+
+  overlay.appendChild(panel);
+  document.body.appendChild(overlay);
+
+  var panelHeader = panel.querySelector('.qq-panel-header');
+  var panelBody = panel.querySelector('.qq-panel-body');
+  var currentChapter = null;
+
+  function showPanel(quiz) {
+    panelHeader.textContent = 'Quick Quiz: ' + quiz.title;
+    panelBody.innerHTML = quiz.cards.map(function(c) {
+      return '<div class="qq-slide-card">' +
+        '<div class="qq-question">' + c.question + '</div>' +
+        '<button class="qq-reveal" onclick="var a=this.nextElementSibling;a.classList.toggle(\'shown\');this.textContent=a.classList.contains(\'shown\')?\'Hide\':\'Reveal\';">Reveal</button>' +
+        '<div class="qq-answer">' + c.term + '</div>' +
+      '</div>';
+    }).join('');
+    overlay.classList.add('open');
+    currentChapter = quiz;
+    // Deactivate all toggles, activate current
+    chapterQuizzes.forEach(function(q) { q.toggle.classList.remove('active'); });
+    quiz.toggle.classList.add('active');
+  }
+
+  function hidePanel() {
+    overlay.classList.remove('open');
+    if (currentChapter) {
+      currentChapter.toggle.classList.remove('active');
+      currentChapter = null;
     }
+  }
+
+  // Wire toggle buttons
+  chapterQuizzes.forEach(function(quiz) {
+    quiz.toggle.addEventListener('click', function() {
+      if (currentChapter === quiz) {
+        hidePanel();
+      } else {
+        showPanel(quiz);
+      }
+    });
+  });
+
+  // Close button
+  panel.querySelector('.qq-close').addEventListener('click', hidePanel);
+
+  // Click overlay background to close
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) hidePanel();
+  });
+
+  // ESC key to close
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') hidePanel();
   });
 })();
-

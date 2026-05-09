@@ -572,45 +572,99 @@ body {
   color: #fff;
 }
 
-.quick-quiz-panel {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.35s ease, margin 0.35s ease;
-  margin: 0;
+/* Quick Quiz slide panel */
+.qq-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: rgba(0,0,0,0);
+  pointer-events: none;
+  transition: background 0.25s;
 }
 
-.quick-quiz-panel.open {
-  max-height: 800px;
-  margin: 18px 0 24px 0;
+.qq-overlay.open {
+  background: rgba(0,0,0,0.3);
+  pointer-events: auto;
 }
 
-.quick-quiz-inner {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 14px;
-  padding: 20px;
-  background: var(--accent-light);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-}
-
-.quick-quiz-card {
+.qq-slide-panel {
+  position: fixed;
+  top: 0; right: 0;
+  width: 440px;
+  max-width: 92vw;
+  height: 100vh;
+  z-index: 501;
   background: var(--surface);
+  box-shadow: -6px 0 30px rgba(0,0,0,0.12);
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.qq-overlay.open .qq-slide-panel {
+  transform: translateX(0);
+}
+
+.qq-close {
+  position: absolute;
+  top: 16px; right: 16px;
+  width: 32px; height: 32px;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 14px 16px;
+  background: var(--surface);
+  font-size: 18px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  z-index: 2;
+}
+
+.qq-close:hover {
+  background: var(--bg);
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.qq-panel-header {
+  padding: 24px 28px 16px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.qq-panel-body {
+  padding: 20px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.qq-slide-card {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 18px 20px;
   border: 1px solid var(--border);
 }
 
-.quick-quiz-card .qq-question {
+.qq-question {
   font-size: 14px;
-  line-height: 1.55;
-  margin-bottom: 10px;
+  line-height: 1.6;
+  margin-bottom: 12px;
   color: var(--text);
 }
 
-.quick-quiz-card .qq-blank {
+.qq-blank {
   display: inline-block;
-  min-width: 80px;
+  min-width: 70px;
   border-bottom: 2px dashed var(--accent);
   color: var(--accent);
   font-weight: 600;
@@ -618,7 +672,7 @@ body {
   margin: 0 2px;
 }
 
-.quick-quiz-card .qq-reveal {
+.qq-reveal {
   display: inline-block;
   padding: 5px 12px;
   border: none;
@@ -631,14 +685,14 @@ body {
   transition: background 0.15s;
 }
 
-.quick-quiz-card .qq-reveal:hover {
+.qq-reveal:hover {
   background: #1d4ed8;
 }
 
-.quick-quiz-card .qq-answer {
+.qq-answer {
   display: none;
-  margin-top: 8px;
-  padding: 8px 12px;
+  margin-top: 10px;
+  padding: 10px 14px;
   background: #ecfdf5;
   border-left: 3px solid #10b981;
   border-radius: 0 6px 6px 0;
@@ -647,14 +701,22 @@ body {
   color: var(--text);
 }
 
-.quick-quiz-card .qq-answer.shown {
+.qq-answer.shown {
   display: block;
 }
 
 @media (max-width: 768px) {
-  .quick-quiz-inner {
-    grid-template-columns: 1fr;
-    padding: 14px;
+  .qq-slide-panel {
+    width: 100vw;
+    max-width: 100vw;
+    border-radius: 0;
+  }
+  .qq-panel-header {
+    padding: 20px 20px 14px;
+    font-size: 16px;
+  }
+  .qq-panel-body {
+    padding: 16px 20px;
   }
 }
 </style>
@@ -2875,20 +2937,23 @@ document.addEventListener('touchstart', (e) => {
 // 7. Initialize: highlight terms in notes
 highlightGlossaryTerms(document.getElementById('deep-notes'));
 
-// ===== Quick Quiz Generation =====
+// ===== Quick Quiz - Slide Panel =====
 (function() {
-  const chapterH2s = [...document.querySelectorAll('#deep-notes h2')].filter(h =>
-    /^\d+\./.test(h.textContent.trim())
-  );
+  var chapterH2s = [...document.querySelectorAll('#deep-notes h2')].filter(function(h) {
+    return /^\d+\./.test(h.textContent.trim());
+  });
   if (chapterH2s.length === 0) return;
 
-  const allH2s = [...document.querySelectorAll('#deep-notes h2')];
-  const STOP_WORDS = new Set([
+  var allH2s = [...document.querySelectorAll('#deep-notes h2')];
+  var STOP_WORDS = new Set([
     'definition → explanation → examples → connections',
     'key takeaways','summary','learning objectives','concept map','core principle',
     'why this matters','clinical correlation','correct understanding','developmental note',
     'key point','terminology warning','common misconception'
   ]);
+
+  // === Build quiz data for each chapter ===
+  var chapterQuizzes = [];
 
   chapterH2s.forEach(function(h2) {
     var idx = allH2s.indexOf(h2);
@@ -2937,34 +3002,87 @@ highlightGlossaryTerms(document.getElementById('deep-notes'));
       return { term: p.term, question: blanked };
     });
 
+    // Add toggle button to H2
     var toggle = document.createElement('button');
     toggle.className = 'quick-quiz-toggle';
-    toggle.textContent = 'Quick Quiz ▸';
-    toggle.addEventListener('click', function() {
-      var open = panel.classList.toggle('open');
-      toggle.classList.toggle('active', open);
-      toggle.textContent = open ? 'Quick Quiz ▾' : 'Quick Quiz ▸';
-    });
-
-    var panel = document.createElement('div');
-    panel.className = 'quick-quiz-panel';
-    panel.innerHTML = '<div class="quick-quiz-inner">' +
-      cards.map(function(c) { return '<div class="quick-quiz-card">' +
-        '<div class="qq-question">' + c.question + '</div>' +
-        '<button class="qq-reveal" onclick="var a=this.nextElementSibling;a.classList.toggle(&quot;shown&quot;);this.textContent=a.classList.contains(&quot;shown&quot;)?&quot;Hide&quot;:&quot;Reveal&quot;;">Reveal</button>' +
-        '<div class="qq-answer">' + c.term + '</div>' +
-      '</div>'; }).join('') +
-    '</div>';
-
+    toggle.textContent = 'Quick Quiz';
     h2.appendChild(toggle);
-    if (nextH2) {
-      nextH2.parentNode.insertBefore(panel, nextH2);
-    } else {
-      h2.parentNode.appendChild(panel);
+
+    chapterQuizzes.push({
+      title: h2.textContent.replace(/^\d+\.\s*/, '').replace(/Quick Quiz$/, '').trim(),
+      cards: cards,
+      toggle: toggle
+    });
+  });
+
+  if (chapterQuizzes.length === 0) return;
+
+  // === Build single slide panel ===
+  var overlay = document.createElement('div');
+  overlay.className = 'qq-overlay';
+
+  var panel = document.createElement('div');
+  panel.className = 'qq-slide-panel';
+  panel.innerHTML =
+    '<button class="qq-close">✕</button>' +
+    '<div class="qq-panel-header"></div>' +
+    '<div class="qq-panel-body"></div>';
+
+  overlay.appendChild(panel);
+  document.body.appendChild(overlay);
+
+  var panelHeader = panel.querySelector('.qq-panel-header');
+  var panelBody = panel.querySelector('.qq-panel-body');
+  var currentChapter = null;
+
+  function showPanel(quiz) {
+    panelHeader.textContent = 'Quick Quiz: ' + quiz.title;
+    panelBody.innerHTML = quiz.cards.map(function(c) {
+      return '<div class="qq-slide-card">' +
+        '<div class="qq-question">' + c.question + '</div>' +
+        '<button class="qq-reveal" onclick="var a=this.nextElementSibling;a.classList.toggle(\'shown\');this.textContent=a.classList.contains(\'shown\')?\'Hide\':\'Reveal\';">Reveal</button>' +
+        '<div class="qq-answer">' + c.term + '</div>' +
+      '</div>';
+    }).join('');
+    overlay.classList.add('open');
+    currentChapter = quiz;
+    // Deactivate all toggles, activate current
+    chapterQuizzes.forEach(function(q) { q.toggle.classList.remove('active'); });
+    quiz.toggle.classList.add('active');
+  }
+
+  function hidePanel() {
+    overlay.classList.remove('open');
+    if (currentChapter) {
+      currentChapter.toggle.classList.remove('active');
+      currentChapter = null;
     }
+  }
+
+  // Wire toggle buttons
+  chapterQuizzes.forEach(function(quiz) {
+    quiz.toggle.addEventListener('click', function() {
+      if (currentChapter === quiz) {
+        hidePanel();
+      } else {
+        showPanel(quiz);
+      }
+    });
+  });
+
+  // Close button
+  panel.querySelector('.qq-close').addEventListener('click', hidePanel);
+
+  // Click overlay background to close
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) hidePanel();
+  });
+
+  // ESC key to close
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') hidePanel();
   });
 })();
-
 
 </script>
 </body>
