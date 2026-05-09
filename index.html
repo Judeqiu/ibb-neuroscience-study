@@ -2641,22 +2641,22 @@ const termRegex = new RegExp('\\b(' + termPattern + ')\\b', 'gi');
 
 // 4. Walk text nodes in Notes section and wrap glossary terms
 function highlightGlossaryTerms(root) {
-  const SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'A', 'BUTTON', 'INPUT', 'TEXTAREA',
-    'H1', 'H2', 'H3', 'CODE', 'PRE', 'FIGCAPTION', 'GLOSSARY-TERM']);
-  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
-  const replacements = [];
-  while (walker.nextNode()) {
-    const node = walker.currentNode;
+  // Use XPath to get a STATIC snapshot of all text nodes.
+  // Unlike TreeWalker, the snapshot is not invalidated by DOM changes.
+  const skipAncestors = 'ancestor::h1 or ancestor::h2 or ancestor::h3 or ancestor::code or ancestor::pre or ancestor::a or ancestor::button or ancestor::input or ancestor::textarea or ancestor::figcaption';
+  const xpath = './/text()[not(' + skipAncestors + ')]';
+  const snapshot = document.evaluate(xpath, root, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+  
+  for (let i = 0; i < snapshot.snapshotLength; i++) {
+    const node = snapshot.snapshotItem(i);
     const parent = node.parentNode;
-    if (!parent || SKIP_TAGS.has(parent.tagName) || parent.closest('.glossary-tooltip')) continue;
+    if (!parent) continue;
     const text = node.textContent;
     if (text.length < 3) continue;
     termRegex.lastIndex = 0;
     const matches = [...text.matchAll(termRegex)];
     if (matches.length === 0) continue;
-    replacements.push({ node, parent, text, matches });
-  }
-  for (const { node, parent, text, matches } of replacements) {
+    
     const frag = document.createDocumentFragment();
     let lastIdx = 0;
     for (const m of matches) {
@@ -2664,7 +2664,7 @@ function highlightGlossaryTerms(root) {
       const span = document.createElement('span');
       span.className = 'glossary-term';
       const entry = lookupGlossaryTerm(m[0].toLowerCase());
-	      span.dataset.term = entry ? entry.term.toLowerCase() : m[0].toLowerCase();
+      span.dataset.term = entry ? entry.term.toLowerCase() : m[0].toLowerCase();
       span.textContent = m[0];
       frag.appendChild(span);
       lastIdx = m.index + m[0].length;
