@@ -13,8 +13,7 @@
     'key point','terminology warning','common misconception'
   ]);
 
-  try {
-chapterH2s.forEach(function(h2) {
+  chapterH2s.forEach(function(h2) {
     var idx = allH2s.indexOf(h2);
     var nextH2 = allH2s[idx + 1] || null;
     var candidates = [];
