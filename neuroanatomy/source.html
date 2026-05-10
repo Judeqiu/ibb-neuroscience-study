@@ -149,11 +149,17 @@ kbd { display: inline-block; padding: 2px 6px; background: #f1f5f9; border: 1px 
 <li><a href="source.html" class="active"><span class="nav-icon">📄</span><span class="nav-label">Source</span></a></li></ul>
 </aside>
 <main class="main">
-<section class="section" id="source-section">
-<h2 id="source-title">Original Source Document</h2>
-<p style="color:var(--text-secondary);margin-bottom:16px;">The original Neuroanatomy IBB 2022 document (PDF → HTML), from which the Deep Notes were derived. Use the tabs below to navigate, or scroll the embedded document directly.</p>
-<div style="width:100%;height:85vh;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:#fafbfc;">
-  <iframe src="source/NeuroanatomyIBB.html" style="width:100%;height:100%;border:none;" title="Original Neuroanatomy IBB 2022 Document"></iframe>
+<style>
+  #source-full { margin-left: calc(-1 * var(--sidebar-width)); width: calc(100vw - var(--sidebar-width)); max-width: none; padding: 0; }
+  .sidebar.collapsed ~ .main #source-full { margin-left: calc(-1 * var(--sidebar-collapsed)); width: calc(100vw - var(--sidebar-collapsed)); }
+  @media (max-width: 768px) { #source-full { margin-left: -16px; width: 100vw; } }
+  #source-iframe { width: 100%; height: 92vh; border: none; background: #e2e8f0; }
+</style>
+<section class="section" id="source-section" style="padding: 16px 20px;">
+<h2 id="source-title" style="margin-bottom:8px;">Original Source Document</h2>
+<p style="color:var(--text-secondary);margin-bottom:12px;font-size:14px;">Neuroanatomy IBB 2022 by Charles Watson et al. — the original PDF→HTML document from which the Deep Notes were derived.</p>
+<div id="source-full" style="border-top:1px solid var(--border);">
+  <iframe id="source-iframe" src="source/NeuroanatomyIBB.html" title="Original Neuroanatomy IBB 2022 Document"></iframe>
 </div>
 </section>
 </main>
