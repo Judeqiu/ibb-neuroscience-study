@@ -146,16 +146,33 @@ kbd { display: inline-block; padding: 2px 6px; background: #f1f5f9; border: 1px 
 
 /* Responsive */
 @media (max-width: 768px) {
-  .sidebar { width: 100%; height: auto; position: relative; padding: 12px; }
+  body { flex-direction: column; }
+  .sidebar { width: 100%; height: auto; position: sticky; top: 0; z-index: 99; padding: 8px 12px; display: flex; flex-direction: column; gap: 4px; }
+  .sidebar-brand { font-size: 13px; margin-bottom: 0; }
   .sidebar-toggle { display: none; }
-  .main { margin-left: 0; padding: 16px; }
+  .sidebar .nav { flex-direction: row; flex-wrap: wrap; gap: 2px; }
+  .sidebar .nav a { padding: 5px 8px; font-size: 11px; gap: 4px; border-radius: 6px; }
+  .sidebar .nav .nav-icon { font-size: 13px; width: auto; }
+  .sidebar .nav .nav-label { font-size: 11px; }
+  #chapter-subnav { display: none !important; }
+  .main { margin-left: 0; padding: 8px; }
   .sidebar.collapsed ~ .main { margin-left: 0; }
-  .section { padding: 20px 16px; }
-  .flashcard { height: 300px; }
+  .section { padding: 16px 12px; margin-bottom: 12px; }
+  h1 { font-size: 20px; }
+  h2 { font-size: 17px; margin: 20px 0 8px; }
+  h3 { font-size: 15px; }
+  .flashcard { height: 280px; }
+  .flashcard-front, .flashcard-back { padding: 16px; }
   .qq-slide-panel { width: 100vw; }
-  .pdf-frame { height: 60vh; }
-  #concept-map-container { height: 60vh; }
-  #source-section div:has(iframe) { height: 60vh; }
+  #concept-map-container { height: 55vh; }
+  #source-viewport { padding: 8px; min-height: 40vh; }
+  #source-header { flex-direction: column; align-items: flex-start; }
+  #source-search input { width: 140px; }
+  #notes-toc { padding: 10px 14px; }
+  .toc-item { font-size: 12px; }
+  table { font-size: 11px; }
+  thead th { font-size: 10px; padding: 6px 8px; }
+  tbody td { padding: 5px 8px; }
 }
 </style>
 
@@ -316,54 +333,72 @@ const data = {
       .attr("stroke-width", 1.5)
       .attr("d", d3.linkHorizontal().x(function(d) { return d.y; }).y(function(d) { return d.x; }));
 
-    var node = g.selectAll(".node").data(nodes, function(d) { return d.data.name; }).join("foreignObject")
+    // Pure SVG node groups (no foreignObject — works on iOS)
+    var nodeG = g.selectAll(".node").data(nodes, function(d) { return d.data.name; }).join("g")
       .attr("class", "node")
-      .attr("x", function(d) { return d.y - 100; })
-      .attr("y", function(d) { return d.x - 20; })
-      .attr("width", 220)
-      .attr("height", 80)
-      .html(function(d) {
-        var bg = d.data.color || "#dbeafe";
-        var border = d.data.border || "#3b82f6";
-        var tc = d.data.textColor || "#1e40af";
-        var detail = d.data.detail || "";
-        var link = d.data.link || '';
-        var hasKids = !!(d.children || d._children);
-        var toggle = hasKids ? '<button class="cm-toggle">' + (d.children ? '−' : '+') + '</button>' : '';
-        return '<div class="node-card" style="background:'+bg+';border-color:'+border+';color:'+tc+';cursor:pointer;position:relative;" data-link="'+link+'"><div class="node-title">'+d.data.name+'</div>'+(detail?'<div class="node-detail">'+detail+'</div>':'')+toggle+'</div>';
-      });
+      .attr("transform", function(d) { return "translate(" + (d.y - 100) + "," + (d.x - 20) + ")"; })
+      .attr("data-link", function(d) { return d.data.link || ''; })
+      .style("cursor", "pointer");
 
-    node.each(function() {
-      var fo = this;
-      var div = fo.querySelector('.node-card');
-      if (div) {
-        var h = div.offsetHeight + 8;
-        d3.select(fo).attr("height", h).attr("y", parseFloat(fo.getAttribute("y")));
-      }
-    });
+    nodeG.append("rect")
+      .attr("rx", 8).attr("ry", 8)
+      .attr("width", 200).attr("height", 52)
+      .attr("fill", function(d) { return d.data.color || "#dbeafe"; })
+      .attr("stroke", function(d) { return d.data.border || "#3b82f6"; })
+      .attr("stroke-width", 2);
+
+    nodeG.append("text")
+      .attr("x", 100).attr("y", 20)
+      .attr("text-anchor", "middle")
+      .attr("font-size", "13px").attr("font-weight", "700")
+      .attr("fill", function(d) { return d.data.textColor || "#1e40af"; })
+      .text(function(d) { return d.data.name; });
+
+    nodeG.append("text")
+      .attr("x", 100).attr("y", 38)
+      .attr("text-anchor", "middle")
+      .attr("font-size", "10px")
+      .attr("fill", "#64748b")
+      .text(function(d) { return d.data.detail || ""; });
+
+    // Toggle circle + label for expand/collapse
+    var hasKids = nodeG.filter(function(d) { return !!(d.children || d._children); });
+    hasKids.append("circle")
+      .attr("class", "cm-toggle")
+      .attr("cx", 190).attr("cy", 8).attr("r", 9)
+      .attr("fill", "rgba(255,255,255,0.8)")
+      .attr("stroke", "rgba(0,0,0,0.2)")
+      .style("cursor", "pointer");
+    hasKids.append("text")
+      .attr("class", "cm-toggle-label")
+      .attr("x", 190).attr("y", 12)
+      .attr("text-anchor", "middle")
+      .attr("font-size", "13px")
+      .attr("fill", "#475569")
+      .style("cursor", "pointer")
+      .style("pointer-events", "none")
+      .text(function(d) { return d.children ? '−' : '+'; });
 
   }
 
-  // Event delegation on SVG for node clicks and toggle buttons
+  // Event delegation on SVG
   svg.on("click", function(event) {
     var target = event.target;
-    // Toggle button: expand/collapse
-    if (target.classList.contains('cm-toggle')) {
+    if (target.classList.contains('cm-toggle') || target.classList.contains('cm-toggle-label')) {
       event.stopPropagation();
-      var d = d3.select(target.closest('.node')).datum();
+      var gEl = target.closest('.node');
+      if (!gEl) return;
+      var d = d3.select(gEl).datum();
       if (!d) return;
       if (d.children) { d._children = d.children; d.children = null; }
       else if (d._children) { d.children = d._children; d._children = null; }
       update(d);
       return;
     }
-    // Node card: navigate to notes
-    var card = target.closest('.node-card');
-    if (card) {
-      var link = card.getAttribute('data-link');
-      if (link) {
-        window.location = 'index.html#' + link;
-      }
+    var gEl = target.closest('.node');
+    if (gEl) {
+      var link = gEl.getAttribute('data-link');
+      if (link) window.location = 'index.html#' + link;
     }
   });
 
