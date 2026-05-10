@@ -367,23 +367,36 @@ const data = {
     }
   });
 
-  var zoom = d3.zoom().scaleExtent([0.5, 5]).on("zoom", function(e) { g.attr("transform", e.transform); });
+  // Use viewBox manipulation instead of g-transform for iOS Safari foreignObject support
+  var baseW = treeW, baseH = treeH;
+  var zoom = d3.zoom()
+    .scaleExtent([0.5, 5])
+    .on("zoom", function(e) {
+      var t = e.transform;
+      var vbX = -t.x / t.k;
+      var vbY = -t.y / t.k;
+      var vbW = baseW / t.k;
+      var vbH = baseH / t.k;
+      svg.attr("viewBox", [vbX, vbY, vbW, vbH]);
+    });
   svg.call(zoom);
 
-  // Initial zoom: fit to width, with minimum scale of 1.0 for readability
   function fitToScreen() {
     var b = g.node().getBBox();
     var fw = container.clientWidth;
     var fh = container.clientHeight;
-    var fs = Math.min(fw / b.width, fh / b.height);
-    var s = Math.max(fs, 1.0);
-    var x = (fw - b.width * s) / 2 - b.x * s;
-    var y = (fh - b.height * s) / 2 - b.y * s;
-    svg.transition().duration(300).call(zoom.transform, d3.zoomIdentity.translate(x, y).scale(s));
+    // Compute scale + translation to fit bbox into viewport
+    var s = Math.max(Math.min(fw / b.width, fh / b.height), 1.0);
+    var cx = b.x + b.width / 2;
+    var cy = b.y + b.height / 2;
+    var tx = fw / 2 - cx * s;
+    var ty = fh / 2 - cy * s;
+    svg.transition().duration(300).call(
+      zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(s)
+    );
   }
   fitToScreen();
 
-  // Zoom buttons
   document.getElementById('cm-zoom-in').addEventListener('click', function(){
     svg.transition().duration(200).call(zoom.scaleBy, 1.4);
   });
@@ -392,7 +405,10 @@ const data = {
   });
   document.getElementById('cm-zoom-fit').addEventListener('click', fitToScreen);
 
-  window.addEventListener('resize', fitToScreen);
+  window.addEventListener('resize', function() {
+    baseW = treeW; baseH = treeH;
+    fitToScreen();
+  });
 })();
 </script>
 <div class="legend-fixed">
