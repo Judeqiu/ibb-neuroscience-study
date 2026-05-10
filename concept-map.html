@@ -5,73 +5,37 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Concept Map — IB Neuroscience</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: #f8fafc;
-  color: #1a1a2e;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-.header {
-  padding: 16px 24px;
-  background: #fff;
-  border-bottom: 1px solid #e2e8f0;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-.header a {
-  color: #2563eb;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8fafc; color: #1a1a2e; }
+.header { padding: 14px 24px; background: #fff; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 10; }
+.header a { color: #2563eb; text-decoration: none; font-size: 14px; font-weight: 500; }
 .header a:hover { text-decoration: underline; }
-.header h1 {
-  font-size: 20px;
-  font-weight: 700;
-  color: #0f172a;
-}
-.toolbar {
-  padding: 10px 24px;
-  background: #fff;
-  border-bottom: 1px solid #e2e8f0;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-.toolbar button {
-  padding: 6px 14px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  background: #fff;
-  cursor: pointer;
-  font-size: 13px;
-  color: #475569;
-  transition: all 0.15s;
-}
-.toolbar button:hover { background: #f1f5f9; color: #0f172a; border-color: #94a3b8; }
-.map-container {
-  flex: 1;
-  overflow: auto;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 20px;
-}
-.map-container svg {
-  max-width: 100%;
-  height: auto;
-  min-width: 1000px;
-}
-@media (max-width: 768px) {
-  .header { padding: 12px 16px; }
-  .header h1 { font-size: 16px; }
-  .map-container { padding: 10px; }
-  .toolbar { display: none; }
-}
+.header h1 { font-size: 20px; font-weight: 700; }
+.map { padding: 30px 40px; max-width: 1700px; margin: 0 auto; }
+
+.level { margin-bottom: 28px; }
+.level-title { font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; padding-left: 4px; }
+.cards { display: flex; flex-wrap: wrap; gap: 14px; }
+.card { border-radius: 10px; padding: 16px 20px; border: 1.5px solid; flex: 1; min-width: 280px; max-width: 420px; }
+.card h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
+.card p { font-size: 13px; line-height: 1.55; color: #475569; margin: 0; }
+.card .detail { font-size: 12px; color: #64748b; margin-top: 2px; }
+
+.arrow-row { display: flex; justify-content: center; gap: 60px; padding: 6px 0 14px 0; }
+.arrow-row span { color: #94a3b8; font-size: 20px; }
+
+.clinical-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
+.clinical-card { border-radius: 8px; padding: 14px 18px; border: 1.5px solid #fecaca; background: #fef2f2; }
+.clinical-card h3 { font-size: 14px; font-weight: 700; color: #991b1b; margin-bottom: 4px; }
+.clinical-card p { font-size: 12px; line-height: 1.5; color: #7f1d1d; margin: 0; }
+
+.principle { margin-top: 30px; padding: 16px 24px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 10px; text-align: center; font-size: 14px; font-weight: 600; color: #334155; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 24px; padding: 14px 20px; background: #fff; border-radius: 10px; border: 1px solid #e2e8f0; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #475569; }
+.legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+
+@media (max-width: 768px) { .map { padding: 16px; } .card { min-width: 100%; } .clinical-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -79,244 +43,187 @@ body {
   <a href="index.html">← Back to Study Hub</a>
   <h1>IB Neuroscience — Concept Map</h1>
 </div>
-<div class="toolbar">
-  <button onclick="zoomIn()" title="Zoom in">🔍+ Zoom In</button>
-  <button onclick="zoomOut()" title="Zoom out">🔍- Zoom Out</button>
-  <button onclick="zoomReset()" title="Reset zoom">↺ Reset</button>
-  <span style="font-size:12px;color:#94a3b8;margin-left:8px">Scroll to pan · Click+drag to move</span>
+
+<div class="map">
+
+<div class="level"><div class="level-title">Level 1 — Development</div>
+<div class="cards">
+  <div class="card" style="background:#dbeafe;border-color:#3b82f6;max-width:100%;">
+    <h3 style="color:#1e40af">Neural Plate → Neural Tube (CNS) + Neural Crest (PNS, melanocytes, facial bones/muscles)</h3>
+    <p>~14,000 genes control brain development | Shh (notochord → ventral/basal plate, motor) | BMP/Wnt (dorsal/alar plate, sensory) | Hox genes pattern hindbrain r2–r11 | Forebrain: Otx2 | Hindbrain: Gbx2</p>
+  </div>
+</div></div>
+
+<div class="arrow-row"><span>↓</span></div>
+
+<div class="level"><div class="level-title">Level 2 — Cells &amp; Tissue Organization</div>
+<div class="cards">
+  <div class="card" style="background:#dcfce7;border-color:#16a34a;">
+    <h3 style="color:#166534">CNS — Brain + Spinal Cord</h3>
+    <p>Nuclei = cell body clusters | Tracts = axon bundles (no connective tissue) | CNS Glia: Astrocytes, Oligodendrocytes, Microglia, Ependyma</p>
+  </div>
+  <div class="card" style="background:#dcfce7;border-color:#16a34a;">
+    <h3 style="color:#166534">Neurons — Structural &amp; Functional Units</h3>
+    <p>Cell body (soma, Nissl bodies = RER) | Dendrites (receive input, dendritic spines) | Axon (conducts AP, no Nissl bodies) | Synapse: presynaptic bouton → synaptic cleft → postsynaptic density</p>
+  </div>
+  <div class="card" style="background:#fef3c7;border-color:#d97706;">
+    <h3 style="color:#92400e">PNS — Nerves + Ganglia</h3>
+    <p>Ganglia = cell body clusters | Nerves = axon bundles + connective tissue sheaths | Schwann cells (myelinate ONE axon segment each)</p>
+  </div>
+</div></div>
+
+<div class="arrow-row"><span>↓</span></div>
+
+<div class="level"><div class="level-title">Level 3 — Myelin &amp; Glial Function</div>
+<div class="cards">
+  <div class="card" style="background:#fce7f3;border-color:#db2777;">
+    <h3 style="color:#9d174d">CNS Myelination — Oligodendrocytes</h3>
+    <p>ONE oligodendrocyte → myelin for MANY axons | More glycolipid, less phospholipid | No basal lamina, no endoneurium | CNS axons do NOT regenerate after injury</p>
+  </div>
+  <div class="card" style="background:#fef9c3;border-color:#ca8a04;">
+    <h3 style="color:#92400e">PNS Myelination — Schwann Cells (Lemmocytes)</h3>
+    <p>ONE Schwann cell → myelin for ONE axon segment | More phospholipid, less glycolipid | Has basal lamina + endoneurium | PNS axons CAN regenerate</p>
+  </div>
+  <div class="card" style="background:#fce7f3;border-color:#db2777;">
+    <h3 style="color:#9d174d">Nodes of Ranvier → Saltatory Conduction</h3>
+    <p>Gaps between adjacent myelin segments | Na⁺ channels concentrated at nodes | AP "jumps" node-to-node → 10–100× faster than unmyelinated conduction | Demyelination: 10× slower conduction, may stop entirely</p>
+  </div>
+  <div class="card" style="background:#e0e7ff;border-color:#6366f1;">
+    <h3 style="color:#3730a3">Glial Cells (outnumber neurons 10:1, CAN divide)</h3>
+    <p>Astrocytes (recycle NTs, modulate synapses, K⁺ balance, BBB) | Microglia (CNS immune, bone marrow-derived) | Ependyma (line ventricles, CSF) | Glial tumors: astrocytomas, glioblastomas</p>
+  </div>
+</div></div>
+
+<div class="arrow-row"><span>↓</span></div>
+
+<div class="level"><div class="level-title">Level 4 — Spinal Cord</div>
+<div class="cards">
+  <div class="card" style="background:#ecfccb;border-color:#65a30d;">
+    <h3 style="color:#3f6212">Spinal Cord Structure</h3>
+    <p>6 functional regions (C1–Co2) | Grey matter: butterfly-shaped, Rexed laminae I–X | Dorsal horn (sensory, laminae 1–4) | Ventral horn (motor, lamina 9 = α-MN) | Lamina 5: pattern generators</p>
+  </div>
+  <div class="card" style="background:#ecfccb;border-color:#65a30d;">
+    <h3 style="color:#3f6212">Ascending &amp; Descending Tracts</h3>
+    <p>Corticospinal (motor, crosses at pyramidal decussation) | DC-ML (touch/proprioception/vibration, crosses in hindbrain) | Spinothalamic (pain/temp, crosses in spinal cord) | Spinocerebellar (proprioception → cerebellum)</p>
+  </div>
+  <div class="card" style="background:#ecfccb;border-color:#65a30d;">
+    <h3 style="color:#3f6212">Spinal Nerves &amp; Dermatomes</h3>
+    <p>8 cervical nerves (7 vertebrae) | 12 thoracic | 5 lumbar | 5 sacral | variable coccygeal | Each spinal nerve supplies a specific dermatome (skin strip C1–Co)</p>
+  </div>
+</div></div>
+
+<div class="arrow-row"><span>↓</span></div>
+
+<div class="level"><div class="level-title">Level 5 — Brainstem, Cerebellum &amp; Cranial Nerves</div>
+<div class="cards">
+  <div class="card" style="background:#fce7f3;border-color:#db2777;">
+    <h3 style="color:#9d174d">Brainstem = Midbrain + Hindbrain</h3>
+    <p>NOT "midbrain-pons-medulla" (outdated schema!) | CN 3–12 nuclei | Vital centers (breathing, CV) | Corridor for ascending/descending pathways | Reticular formation (consciousness, sleep-wake)</p>
+  </div>
+  <div class="card" style="background:#fce7f3;border-color:#db2777;">
+    <h3 style="color:#9d174d">Cerebellum (~80% of all brain neurons!)</h3>
+    <p>3 peduncles: Inferior (spinal cord + olive in), Middle (pontine nuclei in, massive), Superior (output to thalamus) | Ipsilateral body connection (double decussation) | Granule cells = ~70% of all brain neurons</p>
+  </div>
+  <div class="card" style="background:#fce7f3;border-color:#db2777;">
+    <h3 style="color:#9d174d">Cranial Nerves (CN 3–12 from brainstem)</h3>
+    <p>Functional classification: SE (somatic efferent), VE (visceral efferent), BE (branchial efferent), SA (somatic afferent), VA (visceral afferent), SS (special sensory) | CN 1 &amp; 2: forebrain, not brainstem</p>
+  </div>
+</div></div>
+
+<div class="arrow-row"><span>↓</span></div>
+
+<div class="level"><div class="level-title">Level 6 — Forebrain (Diencephalon + Telencephalon)</div>
+<div class="cards">
+  <div class="card" style="background:#fce7f3;border-color:#db2777;">
+    <h3 style="color:#9d174d">Diencephalon &amp; Hypothalamus</h3>
+    <p>Thalamus: sensory relay (all senses except smell) — VPL, DLG, MG, VL nuclei | Hypothalamus: MOST ROSTRAL part of neural tube (not "under thalamus"!) | Cephalic flexure pushes it ventrally | SCN (circadian clock), VMH (feeding/defense), Mammillary body</p>
+  </div>
+  <div class="card" style="background:#fce7f3;border-color:#db2777;">
+    <h3 style="color:#9d174d">Telencephalon — Cortex (180 Brodmann areas)</h3>
+    <p>Neocortex: 6 layers | M1 (BA4, agranular) | S1 (BA3,1,2, granular) | V1 (BA17) | A1 (BA41) | Broca (BA44–45) | Wernicke (BA22) | Hippocampus (memory formation) | Amygdala (fear, social hierarchy)</p>
+  </div>
+  <div class="card" style="background:#fce7f3;border-color:#db2777;">
+    <h3 style="color:#9d174d">Basal Ganglia &amp; White Matter</h3>
+    <p>Striatum (caudate + putamen + accumbens) | Pallidum (globus pallidus) | Substantia nigra (dopamine → striatum) | 4 commissures: Corpus callosum, Anterior, Hippocampal, Posterior | Internal capsule: common stroke site</p>
+  </div>
+</div></div>
+
+<div class="arrow-row"><span>↓</span></div>
+
+<div class="level"><div class="level-title">Level 7 — Blood Supply, CSF, Imaging &amp; Examination</div>
+<div class="cards">
+  <div class="card" style="background:#fef2f2;border-color:#ef4444;">
+    <h3 style="color:#991b1b">Blood Supply — Circle of Willis</h3>
+    <p>ICA + Vertebral → Basilar → Circle of Willis | ACA (medial frontal/parietal, leg area) | MCA (lateral, face/arm/speech; most common stroke) | PCA (occipital, visual cortex) | ACom / PCom: aneurysm sites</p>
+  </div>
+  <div class="card" style="background:#fef2f2;border-color:#ef4444;">
+    <h3 style="color:#991b1b">CSF Circulation &amp; BBB</h3>
+    <p>CSF: Choroid plexus → Lateral → 3rd → Cerebral aqueduct → 4th → Subarachnoid space → Arachnoid granulations → Superior sagittal sinus | ~500 mL/day, ~150 mL volume, replaced ~3×/day | BBB: tight junctions + basement membrane + astrocyte end-feet</p>
+  </div>
+  <div class="card" style="background:#fef2f2;border-color:#ef4444;">
+    <h3 style="color:#991b1b">Staining &amp; Imaging Methods</h3>
+    <p>Nissl (RER in soma), Golgi (full neuron, random), Myelin (Luxol fast blue), GFAP (astrocytes), NeuN (neuron nuclei), ChAT (cholinergic neurons) | MRI (soft tissue, MS plaques), CT (acute hemorrhage, bone), EEG (epilepsy), EMG/NCS (peripheral nerve/muscle)</p>
+  </div>
+</div></div>
+
+<div class="arrow-row"><span>↓</span></div>
+
+<div class="level"><div class="level-title">Level 8 — Functional Systems</div>
+<div class="cards">
+  <div class="card" style="background:#f3e8ff;border-color:#9333ea;">
+    <h3 style="color:#6b21a8">Motor Systems</h3>
+    <p>Corticospinal tract (voluntary fine distal limb, crosses at pyramidal decussation) | Basal ganglia circuit (select/inhibit movements) | Cerebellum (real-time coordination) | α-Motor neuron = final common pathway (Sherrington) | Extrapyramidal system = discredited term!</p>
+  </div>
+  <div class="card" style="background:#f3e8ff;border-color:#9333ea;">
+    <h3 style="color:#6b21a8">Sensory Systems (3-neuron chains)</h3>
+    <p>DC-ML (touch/proprioception/vibration): crosses in HINDBRAIN | Spinothalamic (pain/temp/crude touch): crosses in SPINAL CORD | Visual: retina → LGN → V1 (BA17) | Auditory: cochlea → MGN → A1 (BA41) | Olfactory: bypasses thalamus! → piriform cortex</p>
+  </div>
+  <div class="card" style="background:#f3e8ff;border-color:#9333ea;">
+    <h3 style="color:#6b21a8">Autonomic Nervous System (2-neuron chain)</h3>
+    <p>Sympathetic: T1–L2, paravertebral chain, short pre/long post, NA (fight or flight) | Parasympathetic: CN 3,7,9,10 + S2–S4, near-organ ganglia, long pre/short post, ACh (rest &amp; digest) | Enteric NS: 200–600 million gut neurons, independent</p>
+  </div>
+  <div class="card" style="background:#f0f9ff;border-color:#0ea5e9;">
+    <h3 style="color:#0369a1">Sleep, Memory &amp; Language</h3>
+    <p>Sleep: VLPO switch → inhibits arousal centers (LC/NA, Raphe/5-HT, Tegmental/ACh, TMN/Histamine) | 90-min cycles | Memory: Semantic (facts) vs Episodic (personal, H.M. case) | Hippocampus = formation; Cortex = long-term storage | Aphasia: Wernicke receptive (BA22) vs Broca expressive (BA44–45)</p>
+  </div>
+</div></div>
+
+<div class="arrow-row"><span>↓</span></div>
+
+<div class="level"><div class="level-title">Level 9 — Clinical Disorders</div>
+<div class="clinical-grid">
+  <div class="clinical-card"><h3>Stroke</h3><p>MCA most common | Internal capsule vulnerable | "Time is brain" — ~1.9M neurons lost per minute | Ischemic (80%) vs Hemorrhagic</p></div>
+  <div class="clinical-card"><h3>Parkinson's Disease</h3><p>Substantia nigra pars compacta degeneration | Resting tremor (disappears with movement) | Rigidity, Bradykinesia | L-DOPA | DBS: subthalamic nucleus, zona incerta</p></div>
+  <div class="clinical-card"><h3>Multiple Sclerosis</h3><p>Autoimmune attack on oligodendrocytes → CNS demyelination | Relapsing-remitting | MRI: plaques | CSF: oligoclonal bands | First episode often optic neuritis</p></div>
+  <div class="clinical-card"><h3>Alzheimer's Disease</h3><p>Most common dementia (~65%) | Begins in hippocampus → memory loss | Aβ plaques (extracellular) | Neurofibrillary tangles (hyperphosphorylated tau, intracellular) | Death ~4 years from diagnosis</p></div>
+  <div class="clinical-card"><h3>Epilepsy</h3><p>Cortical hyperexcitability → seizures | EEG: primary diagnostic tool | Generalized (tonic-clonic/grand mal) vs Absence (petit mal) | Temporal lobe epilepsy: olfactory hallucinations, déjà vu</p></div>
+  <div class="clinical-card"><h3>Spastic vs Flaccid Paralysis</h3><p>Spastic (CST damage): ↑tone, ↑reflexes, Babinski (+), minimal atrophy | Flaccid (MN damage): ↓tone, ↓reflexes, Babinski (−), marked atrophy, fasciculations</p></div>
+  <div class="clinical-card"><h3>Meningitis / Poliomyelitis</h3><p>Meningitis: fever, headache, neck stiffness, ↑WBC in CSF | Bacterial treatable (antibiotics), viral supportive | Polio: virus → motor neurons via retrograde axonal transport → flaccid paralysis</p></div>
+  <div class="clinical-card"><h3>ALS (Motor Neuron Disease)</h3><p>UMN + LMN degeneration | Progressive weakness → respiratory failure | Fatal within ~3 years | "Amyotrophic" = LMN (muscle wasting) | "Lateral sclerosis" = UMN (corticospinal tract gliosis)</p></div>
+  <div class="clinical-card"><h3>Huntington's Disease</h3><p>Autosomal dominant | CAG trinucleotide repeat in HTT gene | Degeneration of GABAergic medium spiny neurons in striatum | Chorea, cognitive decline, psychiatric symptoms | Onset 35–50 years</p></div>
+  <div class="clinical-card"><h3>Cerebral Palsy</h3><p>Non-progressive movement disorder from developmental brain damage | 4 subtypes: Spastic (~70%, CST), Ataxic (cerebellum), Athetoid/Dyskinetic (basal ganglia), Mixed</p></div>
+  <div class="clinical-card"><h3>Schizophrenia / Depression / Bipolar</h3><p>Schizophrenia: 1% population, dopamine/serotonin, auditory hallucinations | Depression: 1/3 lifetime prevalence, SSRIs, CBT | Bipolar: manic + depressive episodes, lithium, sodium valproate</p></div>
+  <div class="clinical-card"><h3>Wernicke-Korsakoff Syndrome</h3><p>Thiamine (B1) deficiency → mostly chronic alcohol abuse | Wernicke encephalopathy: confusion, ataxia, ophthalmoplegia | Korsakoff: anterograde amnesia, confabulation, mammillary body atrophy | ~20% mortality within weeks</p></div>
+  <div class="clinical-card"><h3>CJD / Prion Disease</h3><p>Misfolded PrPsc protein → rapidly progressive dementia | Sporadic: 1 in 1,000,000 | Variant CJD: from BSE ("mad cow disease") contaminated beef | Death within 6–12 months of symptom onset</p></div>
+  <div class="clinical-card"><h3>ADHD / Autism / OCD / Tourette</h3><p>ADHD: inattention, hyperactivity, methylphenidate | Autism: social/communication, NOT caused by vaccines (Wakefield retracted) | OCD: SSRIs reduce symptoms in ~60% | Tourette: motor + vocal tics</p></div>
+  <div class="clinical-card"><h3>Spina Bifida / FAS / Rubella</h3><p>Neural tube defects: folate deficiency → spina bifida (preventable with supplementation) | Fetal alcohol syndrome: avoid alcohol in first 8 weeks | Rubella: deafness, blindness, brain abnormalities → vaccination</p></div>
+  <div class="clinical-card"><h3>Myasthenia Gravis / Peripheral Neuropathy</h3><p>Myasthenia gravis: autoimmune, antibodies block postsynaptic ACh receptors → exercise-dependent muscle weakness | Peripheral neuropathy: diabetes/alcohol → longest nerves first (glove-and-stocking numbness)</p></div>
 </div>
-<div class="map-container" id="mapContainer">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1300 900" width="1300" height="900">
-  <defs>
-    <style>
-      .box { rx: 6; ry: 6; stroke-width: 1.5; }
-      .text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 12px; font-weight: 600; text-anchor: middle; dominant-baseline: middle; }
-      .small { font-size: 9.5px; font-weight: 400; }
-      .title { font-size: 19px; font-weight: 700; }
-      .arrow { stroke: #94a3b8; stroke-width: 1.5; fill: none; marker-end: url(#arrowhead); }
-    </style>
-    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-      <polygon points="0 0, 8 3, 0 6" fill="#94a3b8" />
-    </marker>
-  </defs>
-  <rect width="1300" height="900" fill="#f8fafc" rx="12"/>
-  <text x="650" y="30" class="text title" fill="#0f172a">IB Neuroscience — Concept Map</text>
-  <text x="650" y="50" class="text small" fill="#64748b">Structure determines function; dysfunction reveals normal function</text>
-  <rect x="510" y="65" width="280" height="28" class="box" fill="#dbeafe" stroke="#3b82f6"/>
-  <text x="650" y="83" class="text" fill="#1e40af">Development — Neural Plate → Neural Tube → Neural Crest</text>
-  <line x1="560" y1="93" x2="280" y2="128" class="arrow"/>
-  <line x1="740" y1="93" x2="1020" y2="128" class="arrow"/>
-  <rect x="160" y="130" width="240" height="28" class="box" fill="#dcfce7" stroke="#16a34a"/>
-  <text x="280" y="148" class="text" fill="#166534">CNS — Brain + Spinal Cord</text>
-  <rect x="900" y="130" width="240" height="28" class="box" fill="#fef3c7" stroke="#d97706"/>
-  <text x="1020" y="148" class="text" fill="#92400e">PNS — Nerves + Ganglia</text>
-  <line x1="280" y1="158" x2="200" y2="192" class="arrow"/>
-  <line x1="280" y1="158" x2="360" y2="192" class="arrow"/>
-  <line x1="1020" y1="158" x2="1020" y2="192" class="arrow"/>
-  <rect x="70" y="194" width="150" height="38" class="box" fill="#e0e7ff" stroke="#6366f1"/>
-  <text x="145" y="210" class="text" fill="#3730a3">Neurons</text>
-  <text x="145" y="225" class="text small" fill="#4338ca">Cell body, dendrites, axon</text>
-  <rect x="240" y="194" width="150" height="38" class="box" fill="#e0e7ff" stroke="#6366f1"/>
-  <text x="315" y="210" class="text" fill="#3730a3">Glial Cells (10:1)</text>
-  <text x="315" y="225" class="text small" fill="#4338ca">Astrocytes, Oligodendrocytes, Microglia, Ependyma</text>
-  <rect x="410" y="194" width="150" height="38" class="box" fill="#fce7f3" stroke="#db2777"/>
-  <text x="485" y="210" class="text" fill="#9d174d">Myelin</text>
-  <text x="485" y="225" class="text small" fill="#be185d">CNS: Oligodendro (multi-axon) | PNS: Schwann cell (1 axon)</text>
-  <rect x="940" y="194" width="160" height="38" class="box" fill="#fef9c3" stroke="#ca8a04"/>
-  <text x="1020" y="210" class="text" fill="#854d0e">PNS Components</text>
-  <text x="1020" y="225" class="text small" fill="#a16207">Schwann cells, DRG, spinal nerve roots</text>
-  <line x1="145" y1="232" x2="145" y2="268" class="arrow"/>
-  <line x1="315" y1="232" x2="315" y2="268" class="arrow"/>
-  <line x1="485" y1="232" x2="485" y2="268" class="arrow"/>
-  <rect x="60" y="270" width="170" height="38" class="box" fill="#ecfccb" stroke="#65a30d"/>
-  <text x="145" y="286" class="text" fill="#3f6212">Spinal Cord</text>
-  <text x="145" y="301" class="text small" fill="#4d7c0f">6 regions, Rexed laminae, 3 funiculi</text>
-  <rect x="260" y="270" width="170" height="38" class="box" fill="#ecfccb" stroke="#65a30d"/>
-  <text x="345" y="286" class="text" fill="#3f6212">Ascending / Descending Tracts</text>
-  <text x="345" y="301" class="text small" fill="#4d7c0f">Corticospinal, DC-ML, Spinothalamic, Spinocerebellar</text>
-  <rect x="460" y="270" width="170" height="38" class="box" fill="#ecfccb" stroke="#65a30d"/>
-  <text x="545" y="286" class="text" fill="#3f6212">Dermatomes</text>
-  <text x="545" y="301" class="text small" fill="#4d7c0f">C1–Co; 8 cervical nerves, 7 vertebrae</text>
-  <line x1="145" y1="308" x2="100" y2="344" class="arrow"/>
-  <line x1="200" y1="296" x2="420" y2="344" class="arrow"/>
-  <rect x="700" y="258" width="240" height="28" class="box" fill="#fce7f3" stroke="#db2777"/>
-  <text x="820" y="276" class="text" fill="#9d174d">Brainstem — Midbrain + Hindbrain (not pons-medulla)</text>
-  <rect x="960" y="258" width="240" height="28" class="box" fill="#fce7f3" stroke="#db2777"/>
-  <text x="1080" y="276" class="text" fill="#9d174d">Cerebellum — 3 peduncles, ipsilateral body connection</text>
-  <line x1="820" y1="286" x2="500" y2="344" class="arrow"/>
-  <line x1="1080" y1="286" x2="1080" y2="314" class="arrow"/>
-  <rect x="50" y="346" width="140" height="38" class="box" fill="#fce7f3" stroke="#db2777"/>
-  <text x="120" y="362" class="text" fill="#9d174d">Diencephalon</text>
-  <text x="120" y="377" class="text small" fill="#be185d">Thalamus, Hypothalamus, Pretectum</text>
-  <rect x="210" y="346" width="140" height="38" class="box" fill="#fce7f3" stroke="#db2777"/>
-  <text x="280" y="362" class="text" fill="#9d174d">Telencephalon</text>
-  <text x="280" y="377" class="text small" fill="#be185d">Cortex (6 layers), Basal Ganglia, Hippocampus, Amygdala</text>
-  <rect x="370" y="346" width="140" height="38" class="box" fill="#fce7f3" stroke="#db2777"/>
-  <text x="440" y="362" class="text" fill="#9d174d">Cranial Nerves</text>
-  <text x="440" y="377" class="text small" fill="#be185d">CN 3–12 brainstem origin; SE/VE/BE/SA/VA/SS classification</text>
-  <rect x="530" y="346" width="150" height="38" class="box" fill="#fce7f3" stroke="#db2777"/>
-  <text x="605" y="362" class="text" fill="#9d174d">Ventricles &amp; CSF</text>
-  <text x="605" y="377" class="text small" fill="#be185d">Lateral → 3rd → 4th → Subarachnoid space</text>
-  <line x1="120" y1="384" x2="120" y2="424" class="arrow"/>
-  <line x1="280" y1="384" x2="280" y2="424" class="arrow"/>
-  <line x1="605" y1="384" x2="605" y2="424" class="arrow"/>
-  <rect x="50" y="426" width="140" height="34" class="box" fill="#fef2f2" stroke="#ef4444"/>
-  <text x="120" y="442" class="text" fill="#991b1b">Circle of Willis</text>
-  <text x="120" y="455" class="text small" fill="#b91c1c">ICA + Vertebral → ACA, MCA, PCA</text>
-  <rect x="210" y="426" width="140" height="34" class="box" fill="#fef2f2" stroke="#ef4444"/>
-  <text x="280" y="442" class="text" fill="#991b1b">CSF Circulation</text>
-  <text x="280" y="455" class="text small" fill="#b91c1c">Choroid plexus → Ventricles → Arachnoid granulations</text>
-  <rect x="370" y="426" width="140" height="34" class="box" fill="#fef2f2" stroke="#ef4444"/>
-  <text x="440" y="442" class="text" fill="#991b1b">Blood-Brain Barrier</text>
-  <text x="440" y="455" class="text small" fill="#b91c1c">Tight junctions + Astrocyte end-feet</text>
-  <rect x="530" y="426" width="150" height="34" class="box" fill="#fef2f2" stroke="#ef4444"/>
-  <text x="605" y="442" class="text" fill="#991b1b">Staining &amp; Imaging</text>
-  <text x="605" y="455" class="text small" fill="#b91c1c">Nissl, Golgi, Myelin, GFAP, MRI, CT, EEG, EMG</text>
-  <rect x="50" y="496" width="155" height="42" class="box" fill="#f3e8ff" stroke="#9333ea"/>
-  <text x="128" y="513" class="text" fill="#6b21a8">Motor Systems</text>
-  <text x="128" y="528" class="text small" fill="#7e22ce">Corticospinal, Basal Ganglia, Cerebellum, α-MN final path</text>
-  <rect x="220" y="496" width="155" height="42" class="box" fill="#f3e8ff" stroke="#9333ea"/>
-  <text x="298" y="513" class="text" fill="#6b21a8">Sensory Systems</text>
-  <text x="298" y="528" class="text small" fill="#7e22ce">DC-ML, Spinothalamic, Visual, Auditory, Somatosensory</text>
-  <rect x="390" y="496" width="155" height="42" class="box" fill="#f3e8ff" stroke="#9333ea"/>
-  <text x="468" y="513" class="text" fill="#6b21a8">Autonomic NS</text>
-  <text x="468" y="528" class="text small" fill="#7e22ce">Sympathetic (T1–L2, NA) vs Parasympathetic (Craniosacral, ACh)</text>
-  <rect x="560" y="496" width="155" height="42" class="box" fill="#f3e8ff" stroke="#9333ea"/>
-  <text x="638" y="513" class="text" fill="#6b21a8">Special Senses</text>
-  <text x="638" y="528" class="text small" fill="#7e22ce">Vision (V1), Hearing (A1), Balance, Smell, Taste (Insula)</text>
-  <line x1="128" y1="538" x2="100" y2="588" class="arrow"/>
-  <line x1="298" y1="538" x2="220" y2="588" class="arrow"/>
-  <line x1="468" y1="538" x2="440" y2="588" class="arrow"/>
-  <line x1="638" y1="538" x2="660" y2="588" class="arrow"/>
-  <rect x="730" y="344" width="240" height="28" class="box" fill="#f0f9ff" stroke="#0ea5e9"/>
-  <text x="850" y="362" class="text" fill="#0369a1">Sleep Mechanisms — VLPO Sleep Switch</text>
-  <rect x="990" y="344" width="210" height="28" class="box" fill="#f0f9ff" stroke="#0ea5e9"/>
-  <text x="1095" y="362" class="text" fill="#0369a1">Memory — Semantic vs Episodic (H.M.)</text>
-  <line x1="850" y1="372" x2="850" y2="408" class="arrow"/>
-  <line x1="1095" y1="372" x2="1095" y2="408" class="arrow"/>
-  <rect x="730" y="410" width="240" height="28" class="box" fill="#f0f9ff" stroke="#0ea5e9"/>
-  <text x="850" y="428" class="text" fill="#0369a1">Arousal centers: LC (NA), Raphe (5-HT), Tegmental (ACh), TMN (Histamine)</text>
-  <rect x="990" y="410" width="210" height="28" class="box" fill="#f0f9ff" stroke="#0ea5e9"/>
-  <text x="1095" y="428" class="text" fill="#0369a1">Hippocampus for formation; cortex for long-term storage</text>
-  <rect x="30" y="590" width="115" height="42" class="box" fill="#fee2e2" stroke="#dc2626"/>
-  <text x="88" y="606" class="text" fill="#991b1b">Stroke</text>
-  <text x="88" y="621" class="text small" fill="#b91c1c">MCA, Internal capsule, "Time is brain"</text>
-  <rect x="155" y="590" width="115" height="42" class="box" fill="#fee2e2" stroke="#dc2626"/>
-  <text x="213" y="606" class="text" fill="#991b1b">Parkinson's</text>
-  <text x="213" y="621" class="text small" fill="#b91c1c">Substantia nigra, Resting tremor, L-DOPA</text>
-  <rect x="280" y="590" width="115" height="42" class="box" fill="#fee2e2" stroke="#dc2626"/>
-  <text x="338" y="606" class="text" fill="#991b1b">Multiple Sclerosis</text>
-  <text x="338" y="621" class="text small" fill="#b91c1c">Oligodendrocyte autoimmune demyelination</text>
-  <rect x="405" y="590" width="115" height="42" class="box" fill="#fee2e2" stroke="#dc2626"/>
-  <text x="463" y="606" class="text" fill="#991b1b">Alzheimer's</text>
-  <text x="463" y="621" class="text small" fill="#b91c1c">Hippocampus, Aβ plaques, tau tangles</text>
-  <rect x="530" y="590" width="115" height="42" class="box" fill="#fee2e2" stroke="#dc2626"/>
-  <text x="588" y="606" class="text" fill="#991b1b">Epilepsy</text>
-  <text x="588" y="621" class="text small" fill="#b91c1c">Cortical hyperexcitability, EEG diagnostic</text>
-  <rect x="655" y="590" width="115" height="42" class="box" fill="#fee2e2" stroke="#dc2626"/>
-  <text x="713" y="606" class="text" fill="#991b1b">Spastic vs Flaccid</text>
-  <text x="713" y="621" class="text small" fill="#b91c1c">CST (spastic) vs Motor neuron (flaccid)</text>
-  <rect x="780" y="590" width="115" height="42" class="box" fill="#fee2e2" stroke="#dc2626"/>
-  <text x="838" y="606" class="text" fill="#991b1b">Meningitis</text>
-  <text x="838" y="621" class="text small" fill="#b91c1c">CSF: elevated WBC, neck stiffness</text>
-  <rect x="905" y="590" width="115" height="42" class="box" fill="#fee2e2" stroke="#dc2626"/>
-  <text x="963" y="606" class="text" fill="#991b1b">Aphasia</text>
-  <text x="963" y="621" class="text small" fill="#b91c1c">Wernicke (BA22) vs Broca (BA44–45)</text>
-  <rect x="1030" y="590" width="115" height="42" class="box" fill="#fee2e2" stroke="#dc2626"/>
-  <text x="1088" y="606" class="text" fill="#991b1b">Wernicke-Korsakoff</text>
-  <text x="1088" y="621" class="text small" fill="#b91c1c">Thiamine def, Mammillary body atrophy</text>
-  <rect x="1155" y="590" width="115" height="42" class="box" fill="#fee2e2" stroke="#dc2626"/>
-  <text x="1213" y="606" class="text" fill="#991b1b">CJD / Prion Disease</text>
-  <text x="1213" y="621" class="text small" fill="#b91c1c">PrPsc misfolding, Rapid dementia</text>
-  <rect x="90" y="648" width="115" height="40" class="box" fill="#fee2e2" stroke="#dc2626"/>
-  <text x="148" y="663" class="text" fill="#991b1b">ALS</text>
-  <text x="148" y="677" class="text small" fill="#b91c1c">UMN + LMN degeneration</text>
-  <rect x="215" y="648" width="115" height="40" class="box" fill="#fee2e2" stroke="#dc2626"/>
-  <text x="273" y="663" class="text" fill="#991b1b">Huntington's</text>
-  <text x="273" y="677" class="text small" fill="#b91c1c">CAG repeat, Striatum, Chorea</text>
-  <rect x="340" y="648" width="115" height="40" class="box" fill="#fee2e2" stroke="#dc2626"/>
-  <text x="398" y="663" class="text" fill="#991b1b">Cerebral Palsy</text>
-  <text x="398" y="677" class="text small" fill="#b91c1c">Spastic, Ataxic, Athetoid, Mixed</text>
-  <rect x="465" y="648" width="115" height="40" class="box" fill="#fee2e2" stroke="#dc2626"/>
-  <text x="523" y="663" class="text" fill="#991b1b">Schizophrenia</text>
-  <text x="523" y="677" class="text small" fill="#b91c1c">Dopamine/Serotonin, Auditory hallucinations</text>
-  <rect x="590" y="648" width="115" height="40" class="box" fill="#fee2e2" stroke="#dc2626"/>
-  <text x="648" y="663" class="text" fill="#991b1b">Depression</text>
-  <text x="648" y="677" class="text small" fill="#b91c1c">1/3 lifetime prevalence, SSRIs, CBT</text>
-  <rect x="715" y="648" width="115" height="40" class="box" fill="#fee2e2" stroke="#dc2626"/>
-  <text x="773" y="663" class="text" fill="#991b1b">Bipolar Disorder</text>
-  <text x="773" y="677" class="text small" fill="#b91c1c">Mania + Depression, Lithium, Valproate</text>
-  <rect x="840" y="648" width="115" height="40" class="box" fill="#fee2e2" stroke="#dc2626"/>
-  <text x="898" y="663" class="text" fill="#991b1b">OCD</text>
-  <text x="898" y="677" class="text small" fill="#b91c1c">SSRIs reduce symptoms in ~60%</text>
-  <rect x="965" y="648" width="115" height="40" class="box" fill="#fee2e2" stroke="#dc2626"/>
-  <text x="1023" y="663" class="text" fill="#991b1b">ADHD</text>
-  <text x="1023" y="677" class="text small" fill="#b91c1c">Inattention, hyperactivity, Methylphenidate</text>
-  <rect x="1090" y="648" width="115" height="40" class="box" fill="#fee2e2" stroke="#dc2626"/>
-  <text x="1148" y="663" class="text" fill="#991b1b">Autism Spectrum</text>
-  <text x="1148" y="677" class="text small" fill="#b91c1c">Social/communication, NOT caused by vaccines</text>
-  <rect x="100" y="720" width="1100" height="32" class="box" fill="#f1f5f9" stroke="#64748b"/>
-  <text x="650" y="740" class="text" fill="#334155" font-size="13">Core Principle: Histological Structure → Anatomical Organization → Functional Circuitry → Clinical Signs When Disrupted</text>
-  <text x="50" y="785" class="text small" fill="#64748b">Color Key:</text>
-  <rect x="135" y="774" width="13" height="13" fill="#dbeafe" stroke="#3b82f6" rx="2"/>
-  <text x="154" y="785" class="text small" fill="#475569">Development</text>
-  <rect x="240" y="774" width="13" height="13" fill="#dcfce7" stroke="#16a34a" rx="2"/>
-  <text x="259" y="785" class="text small" fill="#475569">CNS</text>
-  <rect x="305" y="774" width="13" height="13" fill="#fef3c7" stroke="#d97706" rx="2"/>
-  <text x="324" y="785" class="text small" fill="#475569">PNS</text>
-  <rect x="375" y="774" width="13" height="13" fill="#fce7f3" stroke="#db2777" rx="2"/>
-  <text x="394" y="785" class="text small" fill="#475569">Brain Regions / Spinal Cord</text>
-  <rect x="540" y="774" width="13" height="13" fill="#fef2f2" stroke="#ef4444" rx="2"/>
-  <text x="559" y="785" class="text small" fill="#475569">Blood Supply / CSF / Imaging</text>
-  <rect x="720" y="774" width="13" height="13" fill="#f3e8ff" stroke="#9333ea" rx="2"/>
-  <text x="739" y="785" class="text small" fill="#475569">Functional Systems</text>
-  <rect x="860" y="774" width="13" height="13" fill="#f0f9ff" stroke="#0ea5e9" rx="2"/>
-  <text x="879" y="785" class="text small" fill="#475569">Sleep / Memory / Language</text>
-  <rect x="1030" y="774" width="13" height="13" fill="#fee2e2" stroke="#dc2626" rx="2"/>
-  <text x="1049" y="785" class="text small" fill="#475569">Clinical Disorders (20 conditions)</text>
-</svg>
+
+<div class="principle">Core Principle: Histological Structure → Anatomical Organization → Functional Circuitry → Clinical Signs When Disrupted</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#dbeafe;border:1.5px solid #3b82f6"></div> Development</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#dcfce7;border:1.5px solid #16a34a"></div> CNS / Neurons</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#fef3c7;border:1.5px solid #d97706"></div> PNS</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#fce7f3;border:1.5px solid #db2777"></div> Myelin / Brain Regions</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ecfccb;border:1.5px solid #65a30d"></div> Spinal Cord</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#fef2f2;border:1.5px solid #ef4444"></div> Blood Supply / CSF / Imaging</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f3e8ff;border:1.5px solid #9333ea"></div> Functional Systems</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f0f9ff;border:1.5px solid #0ea5e9"></div> Sleep / Memory / Language</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#fef2f2;border:1.5px solid #dc2626"></div> Clinical Disorders</div>
+</div>
 
 </div>
-<script>
-var scale = 1;
-var container = document.getElementById('mapContainer');
-var svg = container.querySelector('svg');
-
-function zoomIn() {
-  scale = Math.min(3, scale + 0.2);
-  svg.style.transform = 'scale(' + scale + ')';
-  svg.style.transformOrigin = 'top left';
-}
-function zoomOut() {
-  scale = Math.max(0.3, scale - 0.2);
-  svg.style.transform = 'scale(' + scale + ')';
-  svg.style.transformOrigin = 'top left';
-}
-function zoomReset() {
-  scale = 1;
-  svg.style.transform = 'scale(1)';
-}
-
-// Mouse drag to pan
-var isDragging = false, startX, startY, scrollLeft, scrollTop;
-container.addEventListener('mousedown', function(e) {
-  isDragging = true;
-  startX = e.pageX - container.offsetLeft;
-  startY = e.pageY - container.offsetTop;
-  scrollLeft = container.scrollLeft;
-  scrollTop = container.scrollTop;
-  container.style.cursor = 'grabbing';
-});
-container.addEventListener('mouseup', function() { isDragging = false; container.style.cursor = 'default'; });
-container.addEventListener('mouseleave', function() { isDragging = false; container.style.cursor = 'default'; });
-container.addEventListener('mousemove', function(e) {
-  if (!isDragging) return;
-  e.preventDefault();
-  var x = e.pageX - container.offsetLeft;
-  var y = e.pageY - container.offsetTop;
-  container.scrollLeft = scrollLeft - (x - startX);
-  container.scrollTop = scrollTop - (y - startY);
-});
-</script>
 </body>
 </html>
