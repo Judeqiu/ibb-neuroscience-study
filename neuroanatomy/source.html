@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Source Document — Neuroanatomy IBB</title>
+<style>
+:root {
+  --bg: #f0f2f5; --surface: #ffffff; --text: #1a1a2e; --text-secondary: #64748b;
+  --accent: #2563eb; --accent-light: #eff6ff; --border: #e2e8f0;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.08);
+  --radius: 12px; --sidebar-width: 250px; --sidebar-collapsed: 56px;
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; display: flex; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* Sidebar */
+.sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-width); background: var(--surface); border-right: 1px solid var(--border); padding: 24px 20px; overflow-y: auto; z-index: 100; transition: width var(--transition), padding var(--transition); box-shadow: var(--shadow-sm); }
+.sidebar.collapsed { width: var(--sidebar-collapsed); padding: 24px 10px; }
+.sidebar-toggle { position: absolute; top: 14px; right: 12px; width: 28px; height: 28px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); cursor: pointer; font-size: 14px; line-height: 26px; text-align: center; color: var(--text-secondary); transition: all var(--transition); }
+.sidebar-toggle:hover { background: var(--accent-light); color: var(--accent); }
+.sidebar-brand { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 24px; white-space: nowrap; overflow: hidden; transition: opacity var(--transition); }
+.sidebar.collapsed .sidebar-brand { opacity: 0; }
+.nav { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.nav a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; transition: all var(--transition); white-space: nowrap; }
+.nav a:hover { background: var(--accent-light); color: var(--accent); }
+.nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.nav-icon { font-size: 17px; flex-shrink: 0; width: 20px; text-align: center; }
+.nav-label { transition: opacity var(--transition), width var(--transition); }
+.sidebar.collapsed .nav-label { opacity: 0; width: 0; overflow: hidden; }
+.sidebar.collapsed .nav a { justify-content: center; padding: 10px; }
+
+/* Main */
+.main { margin-left: var(--sidebar-width); flex: 1; padding: 32px 40px; max-width: 900px; width: 100%; transition: margin-left var(--transition); }
+.sidebar.collapsed ~ .main { margin-left: var(--sidebar-collapsed); }
+.section { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); padding: 32px 40px; margin-bottom: 24px; }
+.section figure img { max-width: 100%; height: auto; border-radius: 8px; }
+
+/* Typography */
+h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+h2 { font-size: 22px; font-weight: 600; margin: 28px 0 12px; color: var(--text); padding-bottom: 6px; border-bottom: 2px solid var(--border); }
+h3 { font-size: 18px; font-weight: 600; margin: 20px 0 8px; color: var(--text); }
+p { margin-bottom: 12px; }
+ul, ol { margin: 8px 0 12px 24px; }
+li { margin-bottom: 4px; }
+figure { margin: 20px 0; text-align: center; }
+figcaption { font-size: 13px; color: var(--text-secondary); margin-top: 8px; font-style: italic; }
+blockquote { border-left: 4px solid var(--accent); background: var(--accent-light); padding: 12px 16px; margin: 16px 0; border-radius: 0 8px 8px 0; font-style: normal; }
+hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+strong { color: var(--text); }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+thead th { background: #f8fafc; text-transform: uppercase; letter-spacing: 0.05em; font-size: 12px; padding: 10px 12px; text-align: left; border-bottom: 2px solid var(--border); }
+tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+tbody tr:hover { background: #f8fafc; }
+
+/* Glossary */
+.glossary-list { list-style: none; margin: 0; }
+.glossary-list li { padding: 10px 14px; margin: 0; border-bottom: 1px solid var(--border); transition: background 0.15s; }
+.glossary-list li:hover { background: #f8fafc; }
+.glossary-list li:target { background: #fef3c7; animation: flash-highlight 1.5s ease-out; }
+@keyframes flash-highlight { 0% { background: #fde68a; } 100% { background: transparent; } }
+.glossary-search { margin-bottom: 16px; }
+.glossary-search input { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; transition: border-color var(--transition); }
+.glossary-search input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+/* Cross-reference tooltip */
+.glossary-term { color: var(--accent); border-bottom: 1px dashed var(--accent); cursor: help; position: relative; }
+.glossary-tooltip { position: fixed; background: #fff; color: var(--text); padding: 12px 16px; border-radius: 10px; font-size: 13px; max-width: 340px; z-index: 1000; line-height: 1.55; box-shadow: 0 8px 30px rgba(0,0,0,0.15); border: 1px solid var(--border); pointer-events: auto; display: none; }
+.glossary-tooltip a { color: var(--accent); text-decoration: underline; font-size: 12px; font-weight: 600; }
+.glossary-tooltip.visible { display: block; }
+
+/* Quiz Reveal */
+.quiz-answer { display: none; margin-top: 8px; padding: 14px 18px; background: #ecfdf5; border-left: 4px solid #10b981; border-radius: 0 8px 8px 0; }
+.quiz-answer.visible { display: block; }
+.reveal-btn { display: inline-block; padding: 6px 16px; background: var(--accent); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: opacity 0.15s; }
+.reveal-btn:hover { opacity: 0.85; }
+
+/* Quick Quiz Slide Panel */
+.qq-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 200; opacity: 0; pointer-events: none; transition: opacity var(--transition); }
+.qq-overlay.visible { opacity: 1; pointer-events: auto; }
+.qq-slide-panel { position: fixed; top: 0; right: 0; bottom: 0; width: 440px; max-width: 100vw; background: var(--surface); z-index: 201; box-shadow: var(--shadow-lg); transform: translateX(100%); transition: transform var(--transition); overflow-y: auto; padding: 32px 24px; }
+.qq-slide-panel.visible { transform: translateX(0); }
+.qq-close { position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); cursor: pointer; font-size: 16px; line-height: 30px; text-align: center; color: var(--text-secondary); }
+.qq-close:hover { background: #fee2e2; color: #dc2626; }
+.quick-quiz-btn { display: inline-block; margin-left: 10px; padding: 2px 10px; background: var(--accent-light); color: var(--accent); border: 1px solid var(--accent); border-radius: 12px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.15s; vertical-align: middle; }
+.quick-quiz-btn:hover { background: var(--accent); color: #fff; }
+
+/* Flashcards */
+.flashcard-container { perspective: 1200px; width: 100%; max-width: 600px; margin: 0 auto; }
+.flashcard { position: relative; width: 100%; height: 380px; cursor: pointer; transform-style: preserve-3d; transition: transform 0.6s; }
+.flashcard.flipped { transform: rotateY(180deg); }
+.flashcard-front, .flashcard-back { position: absolute; inset: 0; backface-visibility: hidden; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px; text-align: center; box-shadow: var(--shadow-lg); }
+.flashcard-front { background: var(--surface); border: 2px solid var(--border); }
+.flashcard-back { background: var(--accent-light); border: 2px solid var(--accent); transform: rotateY(180deg); overflow-y: auto; padding: 16px !important; justify-content: flex-start; gap: 6px; }
+.flashcard-back img { max-width: 100%; max-height: 260px; width: auto; height: auto; border-radius: 8px; object-fit: contain; display: block; margin: 0 auto; }
+.flashcard-front h3 { font-size: 20px; margin-bottom: 8px; }
+.flashcard-front p { font-size: 16px; color: var(--text-secondary); }
+.flashcard-chapter { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+.flashcard-controls { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 20px; }
+.flashcard-controls button { padding: 8px 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); cursor: pointer; font-size: 14px; transition: all 0.15s; }
+.flashcard-controls button:hover { background: var(--accent-light); }
+.flashcard-progress { text-align: center; margin-top: 12px; font-size: 13px; color: var(--text-secondary); }
+kbd { display: inline-block; padding: 2px 6px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 11px; font-family: monospace; }
+
+/* PDF Tabs */
+.pdf-tabs { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
+.pdf-tab { padding: 8px 16px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); cursor: pointer; font-size: 13px; transition: all 0.15s; }
+.pdf-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.pdf-frame { width: 100%; height: 85vh; border: 1px solid var(--border); border-radius: var(--radius); }
+
+/* D3 Concept Map */
+#concept-map-container { width: 100%; height: 85vh; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #fafbfc; }
+#concept-map-container svg { width: 100%; height: 100%; }
+.node-card { background: #dbeafe; border: 2px solid #3b82f6; border-radius: 8px; padding: 8px 10px; font-size: 12px; line-height: 1.3; text-align: center; color: #1e40af; overflow: hidden; }
+.node-card .node-title { font-weight: 700; font-size: 13px; }
+.node-card .node-detail { font-size: 10px; color: #64748b; margin-top: 2px; }
+.legend-fixed { position: fixed; bottom: 16px; left: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 12px; box-shadow: var(--shadow); z-index: 50; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar { width: 100%; height: auto; position: relative; padding: 12px; }
+  .sidebar-toggle { display: none; }
+  .main { margin-left: 0; padding: 16px; }
+  .sidebar.collapsed ~ .main { margin-left: 0; }
+  .section { padding: 20px 16px; }
+  .flashcard { height: 300px; }
+  .qq-slide-panel { width: 100vw; }
+  .pdf-frame { height: 60vh; }
+  #concept-map-container { height: 60vh; }
+  #source-section div:has(iframe) { height: 60vh; }
+}
+</style>
+
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+  <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+  <div class="sidebar-brand">🧠 Neuroanatomy</div>
+  <ul class="nav"><li><a href="index.html" class=""><span class="nav-icon">📝</span><span class="nav-label">Deep Notes</span></a></li>
+<li><a href="pop-quiz.html" class=""><span class="nav-icon">✅</span><span class="nav-label">Pop Quiz</span></a></li>
+<li><a href="flashcards.html" class=""><span class="nav-icon">🃏</span><span class="nav-label">Flashcards</span></a></li>
+<li><a href="blog-page.html" class=""><span class="nav-icon">📰</span><span class="nav-label">Blog</span></a></li>
+<li><a href="concept-map.html" class=""><span class="nav-icon">🗺️</span><span class="nav-label">Concept Map</span></a></li>
+<li><a href="source.html" class="active"><span class="nav-icon">📄</span><span class="nav-label">Source</span></a></li></ul>
+</aside>
+<main class="main">
+<section class="section" id="source-section">
+<h2 id="source-title">Original Source Document</h2>
+<p style="color:var(--text-secondary);margin-bottom:16px;">The original Neuroanatomy IBB 2022 document (PDF → HTML), from which the Deep Notes were derived. Use the tabs below to navigate, or scroll the embedded document directly.</p>
+<div style="width:100%;height:85vh;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:#fafbfc;">
+  <iframe src="source/NeuroanatomyIBB.html" style="width:100%;height:100%;border:none;" title="Original Neuroanatomy IBB 2022 Document"></iframe>
+</div>
+</section>
+</main>
+<script>
+(function(){
+var sb = document.getElementById('sidebar');
+var btn = document.getElementById('sidebarToggle');
+if (!sb || !btn) return;
+try {
+  if (localStorage.getItem('sidebar-collapsed') === 'true') sb.classList.add('collapsed');
+} catch(e) {}
+btn.addEventListener('click', function(){
+  var collapsed = sb.classList.toggle('collapsed');
+  try { localStorage.setItem('sidebar-collapsed', collapsed); } catch(e) {}
+});
+})();
+</script>
+<script>
+(function(){
+var navLinks = document.querySelectorAll('.nav a[href^="#"]');
+var sections = [];
+navLinks.forEach(function(a){
+  var id = a.getAttribute('href').substring(1);
+  var el = document.getElementById(id);
+  if (el) sections.push({el: el, link: a});
+});
+window.addEventListener('scroll', function(){
+  var scrollY = window.scrollY + 100;
+  var current = null;
+  sections.forEach(function(s){
+    if (s.el.offsetTop <= scrollY) current = s;
+  });
+  navLinks.forEach(function(a){ a.classList.remove('active'); });
+  if (current) current.link.classList.add('active');
+});
+})();
+</script>
+
+</body>
+</html>
