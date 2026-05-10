@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog — Neuroanatomy IBB</title>
+<style>
+:root {
+  --bg: #f0f2f5; --surface: #ffffff; --text: #1a1a2e; --text-secondary: #64748b;
+  --accent: #2563eb; --accent-light: #eff6ff; --border: #e2e8f0;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.08);
+  --radius: 12px; --sidebar-width: 250px; --sidebar-collapsed: 56px;
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; display: flex; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* Sidebar */
+.sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-width); background: var(--surface); border-right: 1px solid var(--border); padding: 24px 20px; overflow-y: auto; z-index: 100; transition: width var(--transition), padding var(--transition); box-shadow: var(--shadow-sm); }
+.sidebar.collapsed { width: var(--sidebar-collapsed); padding: 24px 10px; }
+.sidebar-toggle { position: absolute; top: 14px; right: 12px; width: 28px; height: 28px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); cursor: pointer; font-size: 14px; line-height: 26px; text-align: center; color: var(--text-secondary); transition: all var(--transition); }
+.sidebar-toggle:hover { background: var(--accent-light); color: var(--accent); }
+.sidebar-brand { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 24px; white-space: nowrap; overflow: hidden; transition: opacity var(--transition); }
+.sidebar.collapsed .sidebar-brand { opacity: 0; }
+.nav { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.nav a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; transition: all var(--transition); white-space: nowrap; }
+.nav a:hover { background: var(--accent-light); color: var(--accent); }
+.nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.nav-icon { font-size: 17px; flex-shrink: 0; width: 20px; text-align: center; }
+.nav-label { transition: opacity var(--transition), width var(--transition); }
+.sidebar.collapsed .nav-label { opacity: 0; width: 0; overflow: hidden; }
+.sidebar.collapsed .nav a { justify-content: center; padding: 10px; }
+
+/* Main */
+.main { margin-left: var(--sidebar-width); flex: 1; padding: 32px 40px; max-width: 900px; width: 100%; transition: margin-left var(--transition); }
+.sidebar.collapsed ~ .main { margin-left: var(--sidebar-collapsed); }
+.section { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); padding: 32px 40px; margin-bottom: 24px; }
+.section figure img { max-width: 100%; height: auto; border-radius: 8px; }
+
+/* Typography */
+h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+h2 { font-size: 22px; font-weight: 600; margin: 28px 0 12px; color: var(--text); padding-bottom: 6px; border-bottom: 2px solid var(--border); }
+h3 { font-size: 18px; font-weight: 600; margin: 20px 0 8px; color: var(--text); }
+p { margin-bottom: 12px; }
+ul, ol { margin: 8px 0 12px 24px; }
+li { margin-bottom: 4px; }
+figure { margin: 20px 0; text-align: center; }
+figcaption { font-size: 13px; color: var(--text-secondary); margin-top: 8px; font-style: italic; }
+blockquote { border-left: 4px solid var(--accent); background: var(--accent-light); padding: 12px 16px; margin: 16px 0; border-radius: 0 8px 8px 0; font-style: normal; }
+hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+strong { color: var(--text); }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+thead th { background: #f8fafc; text-transform: uppercase; letter-spacing: 0.05em; font-size: 12px; padding: 10px 12px; text-align: left; border-bottom: 2px solid var(--border); }
+tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+tbody tr:hover { background: #f8fafc; }
+
+/* Glossary */
+.glossary-list { list-style: none; margin: 0; }
+.glossary-list li { padding: 10px 14px; margin: 0; border-bottom: 1px solid var(--border); transition: background 0.15s; }
+.glossary-list li:hover { background: #f8fafc; }
+.glossary-list li:target { background: #fef3c7; animation: flash-highlight 1.5s ease-out; }
+@keyframes flash-highlight { 0% { background: #fde68a; } 100% { background: transparent; } }
+.glossary-search { margin-bottom: 16px; }
+.glossary-search input { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; transition: border-color var(--transition); }
+.glossary-search input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+/* Cross-reference tooltip */
+.glossary-term { color: var(--accent); border-bottom: 1px dashed var(--accent); cursor: help; position: relative; }
+.glossary-tooltip { position: fixed; background: #fff; color: var(--text); padding: 12px 16px; border-radius: 10px; font-size: 13px; max-width: 340px; z-index: 1000; line-height: 1.55; box-shadow: 0 8px 30px rgba(0,0,0,0.15); border: 1px solid var(--border); pointer-events: auto; display: none; }
+.glossary-tooltip a { color: var(--accent); text-decoration: underline; font-size: 12px; font-weight: 600; }
+.glossary-tooltip.visible { display: block; }
+
+/* Quiz Reveal */
+.quiz-answer { display: none; margin-top: 8px; padding: 14px 18px; background: #ecfdf5; border-left: 4px solid #10b981; border-radius: 0 8px 8px 0; }
+.quiz-answer.visible { display: block; }
+.reveal-btn { display: inline-block; padding: 6px 16px; background: var(--accent); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: opacity 0.15s; }
+.reveal-btn:hover { opacity: 0.85; }
+
+/* Quick Quiz Slide Panel */
+.qq-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 200; opacity: 0; pointer-events: none; transition: opacity var(--transition); }
+.qq-overlay.visible { opacity: 1; pointer-events: auto; }
+.qq-slide-panel { position: fixed; top: 0; right: 0; bottom: 0; width: 440px; max-width: 100vw; background: var(--surface); z-index: 201; box-shadow: var(--shadow-lg); transform: translateX(100%); transition: transform var(--transition); overflow-y: auto; padding: 32px 24px; }
+.qq-slide-panel.visible { transform: translateX(0); }
+.qq-close { position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); cursor: pointer; font-size: 16px; line-height: 30px; text-align: center; color: var(--text-secondary); }
+.qq-close:hover { background: #fee2e2; color: #dc2626; }
+.quick-quiz-btn { display: inline-block; margin-left: 10px; padding: 2px 10px; background: var(--accent-light); color: var(--accent); border: 1px solid var(--accent); border-radius: 12px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.15s; vertical-align: middle; }
+.quick-quiz-btn:hover { background: var(--accent); color: #fff; }
+
+/* Flashcards */
+.flashcard-container { perspective: 1200px; width: 100%; max-width: 600px; margin: 0 auto; }
+.flashcard { position: relative; width: 100%; height: 380px; cursor: pointer; transform-style: preserve-3d; transition: transform 0.6s; }
+.flashcard.flipped { transform: rotateY(180deg); }
+.flashcard-front, .flflashcard-back { position: absolute; inset: 0; backface-visibility: hidden; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px; text-align: center; box-shadow: var(--shadow-lg); }
+.flashcard-front { background: var(--surface); border: 2px solid var(--border); }
+.flashcard-back { background: var(--accent-light); border: 2px solid var(--accent); transform: rotateY(180deg); overflow-y: auto; }
+.flashcard-back img { max-width: 100%; max-height: 180px; border-radius: 8px; margin-bottom: 12px; }
+.flashcard-front h3 { font-size: 20px; margin-bottom: 8px; }
+.flashcard-front p { font-size: 16px; color: var(--text-secondary); }
+.flashcard-chapter { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+.flashcard-controls { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 20px; }
+.flashcard-controls button { padding: 8px 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); cursor: pointer; font-size: 14px; transition: all 0.15s; }
+.flashcard-controls button:hover { background: var(--accent-light); }
+.flashcard-progress { text-align: center; margin-top: 12px; font-size: 13px; color: var(--text-secondary); }
+kbd { display: inline-block; padding: 2px 6px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 11px; font-family: monospace; }
+
+/* PDF Tabs */
+.pdf-tabs { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
+.pdf-tab { padding: 8px 16px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); cursor: pointer; font-size: 13px; transition: all 0.15s; }
+.pdf-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.pdf-frame { width: 100%; height: 85vh; border: 1px solid var(--border); border-radius: var(--radius); }
+
+/* D3 Concept Map */
+#concept-map-container { width: 100%; height: 85vh; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #fafbfc; }
+#concept-map-container svg { width: 100%; height: 100%; }
+.node-card { background: #dbeafe; border: 2px solid #3b82f6; border-radius: 8px; padding: 8px 10px; font-size: 12px; line-height: 1.3; text-align: center; color: #1e40af; overflow: hidden; }
+.node-card .node-title { font-weight: 700; font-size: 13px; }
+.node-card .node-detail { font-size: 10px; color: #64748b; margin-top: 2px; }
+.legend-fixed { position: fixed; bottom: 16px; left: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 12px; box-shadow: var(--shadow); z-index: 50; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar { width: 100%; height: auto; position: relative; padding: 12px; }
+  .sidebar-toggle { display: none; }
+  .main { margin-left: 0; padding: 16px; }
+  .sidebar.collapsed ~ .main { margin-left: 0; }
+  .section { padding: 20px 16px; }
+  .flashcard { height: 300px; }
+  .qq-slide-panel { width: 100vw; }
+  .pdf-frame { height: 60vh; }
+  #concept-map-container { height: 60vh; }
+}
+</style>
+
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+  <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+  <div class="sidebar-brand">🧠 Neuroanatomy</div>
+  <ul class="nav"><li><a href="index.html" class="active"><span class="nav-icon">📝</span><span class="nav-label">Deep Notes</span></a></li>
+<li><a href="pop-quiz.html" class=""><span class="nav-icon">✅</span><span class="nav-label">Pop Quiz</span></a></li>
+<li><a href="flashcards.html" class=""><span class="nav-icon">🃏</span><span class="nav-label">Flashcards</span></a></li>
+<li><a href="blog-page.html" class=""><span class="nav-icon">📰</span><span class="nav-label">Blog</span></a></li>
+<li><a href="concept-map.html" class=""><span class="nav-icon">🗺️</span><span class="nav-label">Concept Map</span></a></li></ul>
+</aside>
+<main class="main"><section class="section" id="blog"><h1 id="blog-title">The Hierarchical Brain: From Spinal Reflexes to Consciousness</h1>
+
+<p class="meta">Based on <em>Neuroanatomy IBB 2022</em> by Charles Watson, Matthew Kirkcaldie, and Friedrich Schwarz</p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>Imagine you step barefoot on a sharp piece of glass. Before you even feel the pain, your foot has already lifted off the ground. Your opposite leg has braced itself to keep you from falling. All of this happens without a single conscious thought from you. How is that possible? The answer lies in one of the most elegant features of the human nervous system: its hierarchical architecture. As described in the 2022 neuroanatomy textbook by Watson, Kirkcaldie, and Schwarz, your brain is not a single monolithic organ but a layered system where simpler functions are handled by lower levels and the most sophisticated tasks are reserved for the top. Understanding this hierarchy is the key to understanding how your brain shapes everything you do, from breathing and balance to creativity and decision-making.</p>
+
+<h2 id="section-1">The Spinal Cord: Far More Than a Simple Cable</h2>
+
+<p>For centuries, the spinal cord was dismissed as a passive relay station, shuttling signals between the body and the brain. Modern neuroscience tells a very different story. According to Watson and colleagues, the spinal cord is a sophisticated command center in its own right. It contains built-in <span class="highlight">pattern generators</span>&mdash;neural circuits that orchestrate complex movements like walking, standing, and reaching without any input from the brain. This is why a horse can stand and walk within minutes of being born: those motor programs are hardwired into its spinal cord. The spinal cord also manages rapid reflex arcs, like withdrawing from a sharp object. Two sets of muscles on opposite sides of the body are coordinated simultaneously&mdash;flexors pull the injured foot away while extensors in the other leg contract to maintain balance&mdash;all before your brain registers what happened. The spinal cord is also the origin of the autonomic nervous system, with sympathetic nerves (controlling fight-or-flight responses) emerging from the thoracic region and parasympathetic nerves (controlling rest-and-digest functions) emerging from the sacral region. Far from being a simple cable, the spinal cord is a pre-programmed action module, ready to respond to commands from above.</p>
+
+<h2 id="section-2">The Brainstem: Your Body's Life Support System</h2>
+
+<p>Sitting atop the spinal cord is the brainstem, the part of your brain you rarely think about but could not live without. It is responsible for the fundamental functions that keep you alive: breathing, chewing, swallowing, vocalization, and facial expressions. It also receives sensory information from your face, tongue, and ears, and is the gateway through which almost all nerve pathways between the forebrain and spinal cord must pass. Watson and colleagues explain that the brainstem is divided into two main parts: the hindbrain (connected to the spinal cord) and the midbrain (connected to the forebrain). The hindbrain gives rise to the cerebellum, while the midbrain sprouts two pairs of bumps on its dorsal surface called the <span class="highlight">superior and inferior colliculi</span>&mdash;visual and auditory processing centers, respectively. The brainstem also houses centers that keep the forebrain awake and alert. Without its constant vigilance, consciousness itself would be impossible. Ten of the twelve cranial nerves originate from the brainstem, controlling everything from eye movements to facial sensation and chewing to the vast parasympathetic reach of the vagus nerve, which supplies the heart, lungs, and digestive organs.</p>
+
+<h2 id="section-3">The Cerebellum: The Coordination Master</h2>
+
+<p>If you have ever marveled at a gymnast's perfect landing or a pianist's rapid fingerwork, you have the cerebellum to thank. This small, cauliflower-shaped structure grows out of the rostral hindbrain and contains an astonishing <span class="highlight">80% of all neurons in the brain</span>&mdash;most of them tiny granule cells packed at a density of about one million per cubic millimeter. At birth, the cerebellum is tiny, but it grows rapidly over the first five to six years of life, matching the period when children are learning complex motor skills. According to the textbook, the cerebellum functions by comparing motor commands from the cerebral cortex with the actual movements the body produces, then adjusting in real time to improve accuracy. It also receives input from the vestibular system to monitor the body's position in space, allowing for split-second postural adjustments when balance is threatened. In primates, the cerebellum has evolved to coordinate hand and eye movements with extraordinary precision&mdash;a capacity that, in humans, has enabled the development of tool manufacture. Remarkably, the ratio of neurons in the cerebral cortex to the cerebellum is consistent across all mammals at about 1:4. There is growing evidence that the cerebellum may continue learning new movement sequences throughout adult life.</p>
+
+<h2 id="section-4">The Forebrain: Thinking, Memory, and Emotion</h2>
+
+<p>The forebrain is where the hierarchy reaches its apex. At its core lies the <span class="highlight">thalamus</span>, a sensory relay station that receives information from all sensory systems except smell and routes it to the appropriate regions of the cerebral cortex. The visual pathway ends in the dorsal lateral geniculate nucleus, the auditory pathway in the medial geniculate nucleus, and the touch pathway in the ventroposterior nucleus. The massive outgrowths on each side of the forebrain are the cerebral hemispheres, covered by the deeply folded cerebral cortex. Watson and colleagues note that the human neocortex contains approximately 180 distinct anatomical and functional areas. These can be grouped under eight major functions: senses, actions, thinking, memory, communication, emotions, sleep and alertness, and relationship. Combinations of these give rise to higher-level human capacities like creativity, inventiveness, social organization, and learning. Deep beneath the cortex lie the <span class="highlight">striatum and pallidum</span> (often called the basal ganglia), which manage inherited and learned motor programs. The striatum also receives a critical dopaminergic input from the substantia nigra&mdash;damage to this pathway is the underlying cause of Parkinson's disease. A separate dopaminergic pathway from the ventral tegmental area to the accumbens nucleus forms the brain's internal reward system. The amygdala, a smaller but powerful structure deep in the temporal lobe, plays a vital role in emotional responses (particularly fear) and social hierarchy behaviors. The hippocampus, arising from the medial pallium, is responsible for short-term memory registration and works with the entorhinal cortex&mdash;which contains a precise two-dimensional grid map of the environment&mdash;to link memories to the places where they occurred.</p>
+
+<h2 id="section-5">The Hypothalamus: The Conductor of Survival</h2>
+
+<p>The textbook reveals a surprising fact: the hypothalamus, long misunderstood as merely a ventral appendage to the thalamus, is actually formed from the most rostral part of the neural tube and is responsible for generating the entire telencephalon (the cerebral hemispheres) from its alar plate. It is, by far, the most crucial center in the developing human brain. In the adult, the hypothalamus serves as the master controller of survival behaviors: eating, drinking, defensive behaviors, reproduction, and exploration of the environment. The suprachiasmatic nucleus acts as the brain's 24-hour clock, adjusting its timing based on light information from the optic nerves. The hypothalamus exerts its control through three major channels: it directs the autonomic nervous system, it sends direct neural commands to survival modules in the brainstem and spinal cord, and it controls the endocrine system via the pituitary gland. As Langdon-Brown famously described, if the pituitary gland is "the leader in the endocrine orchestra," the hypothalamus is the conductor. It produces oxytocin (essential for childbirth, bonding, and maternal-infant attachment) and vasopressin (which controls blood pressure and urine production), and it secretes releasing hormones that govern the entire anterior pituitary, including growth hormone, thyroid-stimulating hormone, and stress hormones.</p>
+
+<h2 id="key-takeaways">Key Takeaways</h2>
+<ul>
+<li><strong>The brain is organized hierarchically</strong>: simple survival functions are handled by the spinal cord and brainstem, while complex functions like thinking and planning are managed by the forebrain. This frees up higher centers from micromanaging every bodily function.</li>
+<li><strong>Your spinal cord is smarter than you think</strong>: it contains pre-programmed pattern generators for walking, standing, and reaching, and can execute complex reflex responses before your brain even registers a stimulus.</li>
+<li><strong>Your brain is constantly remodeling itself</strong>: throughout life, the brain forms an estimated one million new connections per minute through a process called plasticity. Even in adulthood, the brain can generate new neurons in the hippocampus and olfactory bulb.</li>
+<li><strong>The hypothalamus is the master survival center</strong>: it controls eating, drinking, reproduction, defense, and the body's hormonal systems&mdash;functioning as the conductor of the endocrine orchestra.</li>
+<li><strong>The cerebellum holds 80% of your brain's neurons</strong>: this coordination master compares intended movements with actual movements, making real-time adjustments that enable everything from balance to fine finger control.</li>
+</ul>
+
+<h2 id="references">References / Sources</h2>
+<p>Watson C, Kirkcaldie M, Schwarz F. <em>Neuroanatomy: Additional Learning Resource</em>. IBB 2022.</p></section></main>
+<script>
+(function(){
+var sb = document.getElementById('sidebar');
+var btn = document.getElementById('sidebarToggle');
+if (!sb || !btn) return;
+try {
+  if (localStorage.getItem('sidebar-collapsed') === 'true') sb.classList.add('collapsed');
+} catch(e) {}
+btn.addEventListener('click', function(){
+  var collapsed = sb.classList.toggle('collapsed');
+  try { localStorage.setItem('sidebar-collapsed', collapsed); } catch(e) {}
+});
+})();
+</script>
+<script>
+(function(){
+var navLinks = document.querySelectorAll('.nav a[href^="#"]');
+var sections = [];
+navLinks.forEach(function(a){
+  var id = a.getAttribute('href').substring(1);
+  var el = document.getElementById(id);
+  if (el) sections.push({el: el, link: a});
+});
+window.addEventListener('scroll', function(){
+  var scrollY = window.scrollY + 100;
+  var current = null;
+  sections.forEach(function(s){
+    if (s.el.offsetTop <= scrollY) current = s;
+  });
+  navLinks.forEach(function(a){ a.classList.remove('active'); });
+  if (current) current.link.classList.add('active');
+});
+})();
+</script>
+blog
+</body>
+</html>

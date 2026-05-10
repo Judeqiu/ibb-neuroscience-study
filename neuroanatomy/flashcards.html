@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flashcards — Neuroanatomy IBB</title>
+<style>
+:root {
+  --bg: #f0f2f5; --surface: #ffffff; --text: #1a1a2e; --text-secondary: #64748b;
+  --accent: #2563eb; --accent-light: #eff6ff; --border: #e2e8f0;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.08);
+  --radius: 12px; --sidebar-width: 250px; --sidebar-collapsed: 56px;
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; display: flex; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* Sidebar */
+.sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-width); background: var(--surface); border-right: 1px solid var(--border); padding: 24px 20px; overflow-y: auto; z-index: 100; transition: width var(--transition), padding var(--transition); box-shadow: var(--shadow-sm); }
+.sidebar.collapsed { width: var(--sidebar-collapsed); padding: 24px 10px; }
+.sidebar-toggle { position: absolute; top: 14px; right: 12px; width: 28px; height: 28px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); cursor: pointer; font-size: 14px; line-height: 26px; text-align: center; color: var(--text-secondary); transition: all var(--transition); }
+.sidebar-toggle:hover { background: var(--accent-light); color: var(--accent); }
+.sidebar-brand { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 24px; white-space: nowrap; overflow: hidden; transition: opacity var(--transition); }
+.sidebar.collapsed .sidebar-brand { opacity: 0; }
+.nav { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.nav a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; transition: all var(--transition); white-space: nowrap; }
+.nav a:hover { background: var(--accent-light); color: var(--accent); }
+.nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.nav-icon { font-size: 17px; flex-shrink: 0; width: 20px; text-align: center; }
+.nav-label { transition: opacity var(--transition), width var(--transition); }
+.sidebar.collapsed .nav-label { opacity: 0; width: 0; overflow: hidden; }
+.sidebar.collapsed .nav a { justify-content: center; padding: 10px; }
+
+/* Main */
+.main { margin-left: var(--sidebar-width); flex: 1; padding: 32px 40px; max-width: 900px; width: 100%; transition: margin-left var(--transition); }
+.sidebar.collapsed ~ .main { margin-left: var(--sidebar-collapsed); }
+.section { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); padding: 32px 40px; margin-bottom: 24px; }
+.section figure img { max-width: 100%; height: auto; border-radius: 8px; }
+
+/* Typography */
+h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+h2 { font-size: 22px; font-weight: 600; margin: 28px 0 12px; color: var(--text); padding-bottom: 6px; border-bottom: 2px solid var(--border); }
+h3 { font-size: 18px; font-weight: 600; margin: 20px 0 8px; color: var(--text); }
+p { margin-bottom: 12px; }
+ul, ol { margin: 8px 0 12px 24px; }
+li { margin-bottom: 4px; }
+figure { margin: 20px 0; text-align: center; }
+figcaption { font-size: 13px; color: var(--text-secondary); margin-top: 8px; font-style: italic; }
+blockquote { border-left: 4px solid var(--accent); background: var(--accent-light); padding: 12px 16px; margin: 16px 0; border-radius: 0 8px 8px 0; font-style: normal; }
+hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+strong { color: var(--text); }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+thead th { background: #f8fafc; text-transform: uppercase; letter-spacing: 0.05em; font-size: 12px; padding: 10px 12px; text-align: left; border-bottom: 2px solid var(--border); }
+tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+tbody tr:hover { background: #f8fafc; }
+
+/* Glossary */
+.glossary-list { list-style: none; margin: 0; }
+.glossary-list li { padding: 10px 14px; margin: 0; border-bottom: 1px solid var(--border); transition: background 0.15s; }
+.glossary-list li:hover { background: #f8fafc; }
+.glossary-list li:target { background: #fef3c7; animation: flash-highlight 1.5s ease-out; }
+@keyframes flash-highlight { 0% { background: #fde68a; } 100% { background: transparent; } }
+.glossary-search { margin-bottom: 16px; }
+.glossary-search input { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; transition: border-color var(--transition); }
+.glossary-search input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+/* Cross-reference tooltip */
+.glossary-term { color: var(--accent); border-bottom: 1px dashed var(--accent); cursor: help; position: relative; }
+.glossary-tooltip { position: fixed; background: #fff; color: var(--text); padding: 12px 16px; border-radius: 10px; font-size: 13px; max-width: 340px; z-index: 1000; line-height: 1.55; box-shadow: 0 8px 30px rgba(0,0,0,0.15); border: 1px solid var(--border); pointer-events: auto; display: none; }
+.glossary-tooltip a { color: var(--accent); text-decoration: underline; font-size: 12px; font-weight: 600; }
+.glossary-tooltip.visible { display: block; }
+
+/* Quiz Reveal */
+.quiz-answer { display: none; margin-top: 8px; padding: 14px 18px; background: #ecfdf5; border-left: 4px solid #10b981; border-radius: 0 8px 8px 0; }
+.quiz-answer.visible { display: block; }
+.reveal-btn { display: inline-block; padding: 6px 16px; background: var(--accent); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: opacity 0.15s; }
+.reveal-btn:hover { opacity: 0.85; }
+
+/* Quick Quiz Slide Panel */
+.qq-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 200; opacity: 0; pointer-events: none; transition: opacity var(--transition); }
+.qq-overlay.visible { opacity: 1; pointer-events: auto; }
+.qq-slide-panel { position: fixed; top: 0; right: 0; bottom: 0; width: 440px; max-width: 100vw; background: var(--surface); z-index: 201; box-shadow: var(--shadow-lg); transform: translateX(100%); transition: transform var(--transition); overflow-y: auto; padding: 32px 24px; }
+.qq-slide-panel.visible { transform: translateX(0); }
+.qq-close { position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); cursor: pointer; font-size: 16px; line-height: 30px; text-align: center; color: var(--text-secondary); }
+.qq-close:hover { background: #fee2e2; color: #dc2626; }
+.quick-quiz-btn { display: inline-block; margin-left: 10px; padding: 2px 10px; background: var(--accent-light); color: var(--accent); border: 1px solid var(--accent); border-radius: 12px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.15s; vertical-align: middle; }
+.quick-quiz-btn:hover { background: var(--accent); color: #fff; }
+
+/* Flashcards */
+.flashcard-container { perspective: 1200px; width: 100%; max-width: 600px; margin: 0 auto; }
+.flashcard { position: relative; width: 100%; height: 380px; cursor: pointer; transform-style: preserve-3d; transition: transform 0.6s; }
+.flashcard.flipped { transform: rotateY(180deg); }
+.flashcard-front, .flflashcard-back { position: absolute; inset: 0; backface-visibility: hidden; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px; text-align: center; box-shadow: var(--shadow-lg); }
+.flashcard-front { background: var(--surface); border: 2px solid var(--border); }
+.flashcard-back { background: var(--accent-light); border: 2px solid var(--accent); transform: rotateY(180deg); overflow-y: auto; }
+.flashcard-back img { max-width: 100%; max-height: 180px; border-radius: 8px; margin-bottom: 12px; }
+.flashcard-front h3 { font-size: 20px; margin-bottom: 8px; }
+.flashcard-front p { font-size: 16px; color: var(--text-secondary); }
+.flashcard-chapter { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+.flashcard-controls { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 20px; }
+.flashcard-controls button { padding: 8px 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); cursor: pointer; font-size: 14px; transition: all 0.15s; }
+.flashcard-controls button:hover { background: var(--accent-light); }
+.flashcard-progress { text-align: center; margin-top: 12px; font-size: 13px; color: var(--text-secondary); }
+kbd { display: inline-block; padding: 2px 6px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 11px; font-family: monospace; }
+
+/* PDF Tabs */
+.pdf-tabs { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
+.pdf-tab { padding: 8px 16px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); cursor: pointer; font-size: 13px; transition: all 0.15s; }
+.pdf-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.pdf-frame { width: 100%; height: 85vh; border: 1px solid var(--border); border-radius: var(--radius); }
+
+/* D3 Concept Map */
+#concept-map-container { width: 100%; height: 85vh; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #fafbfc; }
+#concept-map-container svg { width: 100%; height: 100%; }
+.node-card { background: #dbeafe; border: 2px solid #3b82f6; border-radius: 8px; padding: 8px 10px; font-size: 12px; line-height: 1.3; text-align: center; color: #1e40af; overflow: hidden; }
+.node-card .node-title { font-weight: 700; font-size: 13px; }
+.node-card .node-detail { font-size: 10px; color: #64748b; margin-top: 2px; }
+.legend-fixed { position: fixed; bottom: 16px; left: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 12px; box-shadow: var(--shadow); z-index: 50; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar { width: 100%; height: auto; position: relative; padding: 12px; }
+  .sidebar-toggle { display: none; }
+  .main { margin-left: 0; padding: 16px; }
+  .sidebar.collapsed ~ .main { margin-left: 0; }
+  .section { padding: 20px 16px; }
+  .flashcard { height: 300px; }
+  .qq-slide-panel { width: 100vw; }
+  .pdf-frame { height: 60vh; }
+  #concept-map-container { height: 60vh; }
+}
+</style>
+
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+  <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+  <div class="sidebar-brand">🧠 Neuroanatomy</div>
+  <ul class="nav"><li><a href="index.html" class=""><span class="nav-icon">📝</span><span class="nav-label">Deep Notes</span></a></li>
+<li><a href="pop-quiz.html" class=""><span class="nav-icon">✅</span><span class="nav-label">Pop Quiz</span></a></li>
+<li><a href="flashcards.html" class="active"><span class="nav-icon">🃏</span><span class="nav-label">Flashcards</span></a></li>
+<li><a href="blog-page.html" class=""><span class="nav-icon">📰</span><span class="nav-label">Blog</span></a></li>
+<li><a href="concept-map.html" class=""><span class="nav-icon">🗺️</span><span class="nav-label">Concept Map</span></a></li></ul>
+</aside>
+<main class="main">
+<section class="section" id="flashcards-section">
+<h2 id="flashcards-title">Neuroanatomy Flashcards</h2>
+<p style="color:var(--text-secondary);margin-bottom:16px;">Click card to flip • <kbd>←</kbd> <kbd>→</kbd> to navigate • <kbd>Space</kbd> to flip</p>
+<div class="flashcard-container">
+  <div class="flashcard" id="flashcard">
+    <div class="flashcard-front" id="fc-front"><h3>Loading...</h3></div>
+    <div class="flashcard-back" id="fc-back"></div>
+  </div>
+</div>
+<div class="flashcard-chapter" id="fc-chapter" style="text-align:center;margin-top:8px;"></div>
+<div class="flashcard-controls">
+  <button id="btn-prev">◀ Prev</button>
+  <button id="btn-flip" onclick="document.getElementById('flashcard').classList.toggle('flipped')">↻ Flip</button>
+  <button id="btn-next">Next ▶</button>
+</div>
+<div class="flashcard-progress" id="fc-progress">1 / 1</div>
+</section>
+</main>
+<script>
+(function(){
+var sb = document.getElementById('sidebar');
+var btn = document.getElementById('sidebarToggle');
+if (!sb || !btn) return;
+try {
+  if (localStorage.getItem('sidebar-collapsed') === 'true') sb.classList.add('collapsed');
+} catch(e) {}
+btn.addEventListener('click', function(){
+  var collapsed = sb.classList.toggle('collapsed');
+  try { localStorage.setItem('sidebar-collapsed', collapsed); } catch(e) {}
+});
+})();
+</script>
+<script>
+(function(){
+var navLinks = document.querySelectorAll('.nav a[href^="#"]');
+var sections = [];
+navLinks.forEach(function(a){
+  var id = a.getAttribute('href').substring(1);
+  var el = document.getElementById(id);
+  if (el) sections.push({el: el, link: a});
+});
+window.addEventListener('scroll', function(){
+  var scrollY = window.scrollY + 100;
+  var current = null;
+  sections.forEach(function(s){
+    if (s.el.offsetTop <= scrollY) current = s;
+  });
+  navLinks.forEach(function(a){ a.classList.remove('active'); });
+  if (current) current.link.classList.add('active');
+});
+})();
+</script>
+<script>window.FLASHCARD_DECK = [
+  {front: "The central nervous system consists of the [...] and the [...].", back: "brain, spinal cord", image: null, chapter: "Global Framework"},
+  {front: "The three main parts of the brain are the [...], [...], and [...].", back: "brain stem, cerebellum, forebrain", image: null, chapter: "Global Framework"},
+  {front: "How are CNS functions arranged hierarchically?", back: "Simplest functions (standing, walking) in spinal cord; survival functions (breathing, eating, balance) in brain stem; sophisticated functions (thinking, memory) in forebrain.", image: null, chapter: "Global Framework"},
+  {front: "There are [...] pairs of cranial nerves and [...] pairs of spinal nerves.", back: "12, 32", image: null, chapter: "Global Framework"},
+  {front: "Almost [...]% of all neurons in the brain are found in the cerebellum, as tiny [...] cells.", back: "80, granule", image: null, chapter: "Global Framework"},
+  {front: "Cells dorsal to the neural canal express [...]/BMP genes to form alar (sensory) plates; cells ventral express [...] (Shh) to form basal (motor) plates.", back: "Wnt, sonic hedgehog", image: null, chapter: "Neural Development"},
+  {front: "What are the three primary brain vesicles that form at the rostral end of the neural tube?", back: "Forebrain vesicle, midbrain vesicle, and hindbrain vesicle.", image: null, chapter: "Neural Development"},
+  {front: "The forebrain and midbrain are defined by expression of [...]; the rostral hindbrain is defined by expression of [...].", back: "Otx2, Gbx2", image: null, chapter: "Neural Development"},
+  {front: "What is the cephalic flexure and what does it cause?", back: "An ~180-degree bend of the neuraxis in the midbrain region during development. It pushes the hypothalamus into a ventral position under the thalamus, creating the misleading appearance that hypothalamus is a ventral part of the diencephalon.", image: null, chapter: "Neural Development"},
+  {front: "The neural crest gives rise to the [...], melanocytes, and bones/muscles of the face.", back: "peripheral nervous system", image: null, chapter: "Neural Development"},
+  {front: "Neural tube defects (e.g., spina bifida) are most critically linked to deficiency of the vitamin [...].", back: "folate", image: null, chapter: "Spinal Cord"},
+  {front: "In the spinal cord, the large somatic motor neurons are located in lamina [...] of the [...] horn.", back: "9, ventral", image: null, chapter: "Spinal Cord"},
+  {front: "Where are the preganglionic sympathetic and parasympathetic motor neurons located in the spinal cord?", back: "Sympathetic: T2 to L2 spinal cord segments. Parasympathetic: S2 to S4 spinal cord segments.", image: null, chapter: "Spinal Cord"},
+  {front: "The corticospinal tract crosses the midline at the [...] in the caudal hindbrain.", back: "pyramidal decussation", image: null, chapter: "Spinal Cord"},
+  {front: "In the dorsal columns, the [...] fasciculus carries information from the hindlimb and the [...] fasciculus carries information from the forelimb.", back: "gracile, cuneate", image: null, chapter: "Spinal Cord"},
+  {front: "What is the fundamental difference in where pain/temperature fibers and fine touch/proprioception fibers cross the midline?", back: "Pain/temperature (spinothalamic) fibers cross near their entry level in the spinal cord. Touch/proprioception (dorsal column-medial lemniscus) fibers ascend ipsilaterally and cross only in the hindbrain (somatosensory decussation).", image: null, chapter: "Spinal Cord"},
+  {front: "Cranial nerves 1 (olfactory) and 2 (optic) are connected to the [...]; cranial nerves 3-12 arise from the [...].", back: "forebrain, brain stem", image: null, chapter: "Brain Stem and Cranial Nerves"},
+  {front: "Damage to the oculomotor nerve (CN3) causes: (1) [...] squint, (2) drooping eyelid ([...]), and (3) dilated [...].", back: "divergent, ptosis, pupil", image: null, chapter: "Brain Stem and Cranial Nerves"},
+  {front: "What is the main function of the vagus nerve (CN10)?", back: "It supplies parasympathetic fibers to the thoracic and abdominal viscera (larynx, esophagus, lungs, heart, stomach, intestines).", image: null, chapter: "Brain Stem and Cranial Nerves"},
+  {front: "The vestibulocochlear nerve (CN8) enters the brainstem as two bundles: [...] fibers (ventral to ICP) and [...] fibers (dorsal/lateral to ICP).", back: "vestibular, cochlear", image: null, chapter: "Brain Stem and Cranial Nerves"},
+  {front: "The three layers of the cerebellar cortex are (outer) [...], (middle) [...], and (inner) [...].", back: "molecular, Purkinje cell, granule cell", image: null, chapter: "Cerebellum"},
+  {front: "Name the three cerebellar peduncles and state whether each carries fibers entering or leaving the cerebellum.", back: "Inferior cerebellar peduncle — mainly entering (from spinal cord, inferior olive); Middle cerebellar peduncle — entering (from basilar pons, the largest); Superior cerebellar peduncle — mainly leaving (to thalamus via red nucleus).", image: null, chapter: "Cerebellum"},
+  {front: "Unlike the cerebral cortex (which connects to the opposite body side), each cerebellar hemisphere connects to the [...] side of the body. Damage therefore causes symptoms on the [...] side.", back: "same, same", image: null, chapter: "Cerebellum"},
+  {front: "Name the four key thalamic nuclei and what each relays.", back: "Ventroposterior (VP) — somatosensory (touch); Dorsal lateral geniculate (DLG) — vision; Medial geniculate (MG) — hearing; Ventrolateral (VL) — receives cerebellum/globus pallidus input, projects to motor cortex.", image: null, chapter: "Diencephalon"},
+  {front: "Major output from the cerebellar cortex is via [...] cells. Most cerebellar input arrives as [...] fibers synapsing on granule cells (except climbing fibers from the inferior olive).", back: "Purkinje, mossy", image: null, chapter: "Diencephalon"},
+  {front: "The hypothalamus controls the posterior pituitary [...]ly: axons from the [...] and supraoptic nuclei release oxytocin and [...] directly into the bloodstream.", back: "direct, paraventricular, vasopressin (ADH)", image: null, chapter: "Hypothalamus"},
+  {front: "The hypothalamus controls the anterior pituitary via a [...] system that carries releasing hormones from hypothalamic capillaries to anterior pituitary cells.", back: "portal venous", image: null, chapter: "Hypothalamus"},
+  {front: "The [...] nucleus sits above the optic chiasm and serves as the brain's 24-hour clock, adjusted by light from the optic nerves.", back: "suprachiasmatic", image: null, chapter: "Hypothalamus"},
+  {front: "The neocortex is made up of [...] well-defined layers. Layer [...] is the main granule cell layer; layer [...] contains large pyramidal cells projecting to the spinal cord.", back: "six, 4, 5", image: null, chapter: "Telencephalon / Cortex"},
+  {front: "The primary motor cortex (M1) lacks a prominent layer 4 and is therefore called [...] cortex.", back: "agranular", image: null, chapter: "Telencephalon / Cortex"},
+  {front: "Match each Brodmann area to its function: 4, 3/1/2, 17, 41.", back: "Area 4 = primary motor cortex (M1, precentral gyrus); Areas 3, 1, 2 = primary somatosensory cortex (S1, postcentral gyrus); Area 17 = primary visual cortex (V1, calcarine sulcus); Area 41 = primary auditory cortex (A1, superior temporal gyrus).", image: null, chapter: "Telencephalon / Cortex"},
+  {front: "Broca's (motor speech) area comprises Brodmann areas [...] and [...]; Wernicke's (speech comprehension) area comprises areas [...] and [...]. Both are in the dominant hemisphere.", back: "44, 45, 39, 40", image: null, chapter: "Telencephalon / Cortex"},
+  {front: "The striatum consists of three parts: the [...] nucleus, the [...], and the accumbens nucleus. It receives a dopaminergic projection from the [...].", back: "caudate, putamen, substantia nigra", image: null, chapter: "Telencephalon / Cortex"},
+  {front: "The corticospinal tract runs from motor cortex → [...] capsule → cerebral peduncle → basilar pons → medullary pyramid → [...] decussation → spinal cord.", back: "internal, pyramidal", image: null, chapter: "Motor Systems"},
+  {front: "What did Sherrington call the \"final common pathway\" for all motor systems, and why?", back: "The alpha motor neuron. All motor control systems (corticospinal, rubrospinal, reticulospinal, etc.) ultimately achieve their effects by stimulating or suppressing alpha motor neurons, which are the only way to cause skeletal muscle contraction.", image: null, chapter: "Motor Systems"},
+  {front: "The [...] (pain/temperature) crosses near its entry level in the spinal cord; the [...] (touch/proprioception) crosses only in the hindbrain.", back: "spinothalamic tract, dorsal column-medial lemniscus", image: null, chapter: "Sensory Systems"},
+  {front: "In the visual pathway, axons from the nasal (medial) half of the retina [...] at the optic chiasm; axons from the temporal half [...]. The result: left visual cortex receives information from the [...] half of both visual fields.", back: "cross, do not cross, right", image: null, chapter: "Sensory Systems"},
+  {front: "In the cochlea, hair cells at the base respond to [...] frequencies; hair cells at the apex respond to [...] frequencies.", back: "high, low", image: null, chapter: "Sensory Systems"},
+  {front: "The [...] canals detect head movement (dynamic vestibular); the saccule and [...] detect static head position.", back: "semicircular, utricle", image: null, chapter: "Sensory Systems"},
+  {front: "In the ANS, motor outflow is a two-neuron chain: a [...] neuron (in CNS) synapses on a [...] neuron (in a peripheral ganglion), which innervates the target.", back: "preganglionic, ganglionic (postganglionic)", image: null, chapter: "Autonomic Nervous System"},
+  {front: "What is the key anatomical difference between sympathetic and parasympathetic ganglia placement?", back: "Sympathetic ganglia are close to the spinal cord (short preganglionic, long ganglionic axons). Parasympathetic ganglia are close to or inside target organs (long preganglionic, very short ganglionic axons).", image: null, chapter: "Autonomic Nervous System"},
+  {front: "The circle of Willis is formed by the posterior cerebral arteries (from basilar), the [...] and anterior cerebral arteries (from internal carotid), and communicating arteries.", back: "middle cerebral", image: null, chapter: "Blood Supply and CSF"},
+  {front: "CSF flows: lateral ventricles → [...] ventricle → aqueduct of [...] → fourth ventricle → subarachnoid space.", back: "third, midbrain", image: null, chapter: "Blood Supply and CSF"},
+  {front: "The blood-brain barrier is formed by tight junctions between [...] cells of brain capillaries.", back: "endothelial", image: null, chapter: "Blood Supply and CSF"},
+  {front: "What is the difference between a Nissl stain and a Golgi stain?", back: "Nissl stains (thionin, cresyl violet) reveal all neuronal and glial cell bodies (nucleoli + rough ER) but not processes. Golgi silver stain reveals complete neurons (cell body + dendrites + axon) but only stains ~1% of neurons, allowing individual cells to be seen in isolation.", image: null, chapter: "Staining"},
+  {front: "The NeuN antibody specifically marks [...] (not glia), because the NeuN nuclear protein is expressed by nearly all neurons and never by glial cells.", back: "neurons", image: null, chapter: "Staining"}
+];
+</script><script>
+(function(){
+var cards = window.FLASHCARD_DECK;
+if (!cards || !cards.length) return;
+var idx = 0;
+var el = document.getElementById('flashcard');
+var chapterEl = document.getElementById('fc-chapter');
+var progressEl = document.getElementById('fc-progress');
+var frontEl = document.getElementById('fc-front');
+var backEl = document.getElementById('fc-back');
+
+function show(i) {
+  if (i < 0) i = cards.length - 1;
+  if (i >= cards.length) i = 0;
+  idx = i;
+  var c = cards[i];
+  el.classList.remove('flipped');
+  frontEl.innerHTML = '<h3>' + c.front + '</h3>';
+  backEl.innerHTML = (c.image ? '<img src="' + c.image + '" loading="eager" alt=""/>' : '') + c.back;
+  chapterEl.textContent = c.chapter || '';
+  progressEl.textContent = (idx + 1) + ' / ' + cards.length;
+}
+show(0);
+
+document.getElementById('btn-prev').addEventListener('click', function(){ show(idx - 1); });
+document.getElementById('btn-next').addEventListener('click', function(){ show(idx + 1); });
+el.addEventListener('click', function(){ el.classList.toggle('flipped'); });
+document.addEventListener('keydown', function(e){
+  if (e.key === 'ArrowLeft') { e.preventDefault(); show(idx - 1); }
+  if (e.key === 'ArrowRight') { e.preventDefault(); show(idx + 1); }
+  if (e.key === ' ') { e.preventDefault(); el.classList.toggle('flipped'); }
+});
+})();
+</script>
+</body>
+</html>
