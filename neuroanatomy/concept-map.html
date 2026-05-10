@@ -315,12 +315,13 @@ const data = {
     });
   }
 
-  var zoom = d3.zoom().scaleExtent([0.25, 3]).on("zoom", function(e) { g.attr("transform", e.transform); });
+  var zoom = d3.zoom().scaleExtent([0.5, 5]).on("zoom", function(e) { g.attr("transform", e.transform); });
   svg.call(zoom);
 
-  // Auto-fit: compute bounds and scale to fill viewport
+  // Initial zoom: fit to width, with minimum scale of 1.0 for readability
   var bbox = g.node().getBBox();
-  var scale = Math.min(W / bbox.width, H / bbox.height, 1) * 0.9;
+  var fitScale = Math.min(W / bbox.width, H / bbox.height);
+  var scale = Math.max(fitScale, 1.0);
   var tx = (W - bbox.width * scale) / 2 - bbox.x * scale;
   var ty = (H - bbox.height * scale) / 2 - bbox.y * scale;
   svg.call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
@@ -329,7 +330,8 @@ const data = {
     var cW = container.clientWidth;
     var cH = container.clientHeight;
     var b = g.node().getBBox();
-    var s = Math.min(cW / b.width, cH / b.height, 1) * 0.9;
+    var fs = Math.min(cW / b.width, cH / b.height);
+    var s = Math.max(fs, 1.0);
     var x = (cW - b.width * s) / 2 - b.x * s;
     var y = (cH - b.height * s) / 2 - b.y * s;
     svg.call(zoom.transform, d3.zoomIdentity.translate(x, y).scale(s));
