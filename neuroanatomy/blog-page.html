@@ -94,10 +94,10 @@ tbody tr:hover { background: #f8fafc; }
 .flashcard-container { perspective: 1200px; width: 100%; max-width: 600px; margin: 0 auto; }
 .flashcard { position: relative; width: 100%; height: 380px; cursor: pointer; transform-style: preserve-3d; transition: transform 0.6s; }
 .flashcard.flipped { transform: rotateY(180deg); }
-.flashcard-front, .flflashcard-back { position: absolute; inset: 0; backface-visibility: hidden; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px; text-align: center; box-shadow: var(--shadow-lg); }
+.flashcard-front, .flashcard-back { position: absolute; inset: 0; backface-visibility: hidden; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px; text-align: center; box-shadow: var(--shadow-lg); }
 .flashcard-front { background: var(--surface); border: 2px solid var(--border); }
-.flashcard-back { background: var(--accent-light); border: 2px solid var(--accent); transform: rotateY(180deg); overflow-y: auto; }
-.flashcard-back img { max-width: 100%; max-height: 180px; border-radius: 8px; margin-bottom: 12px; }
+.flashcard-back { background: var(--accent-light); border: 2px solid var(--accent); transform: rotateY(180deg); overflow-y: auto; padding: 16px !important; justify-content: flex-start; gap: 6px; }
+.flashcard-back img { max-width: 100%; max-height: 260px; width: auto; height: auto; border-radius: 8px; object-fit: contain; display: block; margin: 0 auto; }
 .flashcard-front h3 { font-size: 20px; margin-bottom: 8px; }
 .flashcard-front p { font-size: 16px; color: var(--text-secondary); }
 .flashcard-chapter { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
@@ -140,10 +140,10 @@ kbd { display: inline-block; padding: 2px 6px; background: #f1f5f9; border: 1px 
 <aside class="sidebar" id="sidebar">
   <button class="sidebar-toggle" id="sidebarToggle">☰</button>
   <div class="sidebar-brand">🧠 Neuroanatomy</div>
-  <ul class="nav"><li><a href="index.html" class="active"><span class="nav-icon">📝</span><span class="nav-label">Deep Notes</span></a></li>
+  <ul class="nav"><li><a href="index.html" class=""><span class="nav-icon">📝</span><span class="nav-label">Deep Notes</span></a></li>
 <li><a href="pop-quiz.html" class=""><span class="nav-icon">✅</span><span class="nav-label">Pop Quiz</span></a></li>
 <li><a href="flashcards.html" class=""><span class="nav-icon">🃏</span><span class="nav-label">Flashcards</span></a></li>
-<li><a href="blog-page.html" class=""><span class="nav-icon">📰</span><span class="nav-label">Blog</span></a></li>
+<li><a href="blog-page.html" class="active"><span class="nav-icon">📰</span><span class="nav-label">Blog</span></a></li>
 <li><a href="concept-map.html" class=""><span class="nav-icon">🗺️</span><span class="nav-label">Concept Map</span></a></li></ul>
 </aside>
 <main class="main"><section class="section" id="blog"><h1 id="blog-title">The Hierarchical Brain: From Spinal Reflexes to Consciousness</h1>
@@ -219,6 +219,6 @@ window.addEventListener('scroll', function(){
 });
 })();
 </script>
-blog
+
 </body>
 </html>
