@@ -92,6 +92,13 @@ tbody tr:hover { background: #f8fafc; }
 .source-cite { display: inline-block; margin-left: 4px; font-size: 13px; text-decoration: none; opacity: .5; transition: opacity .15s; vertical-align: middle; }
 .source-cite:hover { opacity: 1; }
 
+/* Chapter sub-nav in sidebar */
+#chapter-subnav { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.chapter-sub-link { display: block; padding: 3px 12px; font-size: 11px; color: var(--text-secondary); text-decoration: none; border-radius: 4px; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: all .15s; }
+.chapter-sub-link:hover { color: var(--accent); background: var(--accent-light); }
+.chapter-sub-link.active { color: var(--accent); font-weight: 600; background: var(--accent-light); }
+.sidebar.collapsed #chapter-subnav { display: none !important; }
+
 /* Table of Contents */
 #notes-toc { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px; }
 .toc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
@@ -163,6 +170,7 @@ kbd { display: inline-block; padding: 2px 6px; background: #f1f5f9; border: 1px 
 <li><a href="blog-page.html" class=""><span class="nav-icon">📰</span><span class="nav-label">Blog</span></a></li>
 <li><a href="concept-map.html" class=""><span class="nav-icon">🗺️</span><span class="nav-label">Concept Map</span></a></li>
 <li><a href="source.html" class=""><span class="nav-icon">📄</span><span class="nav-label">Source</span></a></li></ul>
+  <div id="chapter-subnav" style="display:none;"></div>
 </aside>
 <main class="main">
 <section class="section" id="deep-notes">
@@ -1776,26 +1784,58 @@ document.querySelectorAll('.quick-quiz-btn').forEach(function(btn){
 (function(){
   var notes = document.getElementById('notes-content');
   var toc = document.getElementById('notes-toc');
-  if (!notes || !toc) return;
+  var subnav = document.getElementById('chapter-subnav');
+
+  if (!notes) return;
   var headings = notes.querySelectorAll('h2, h3');
-  if (!headings.length) { toc.style.display = 'none'; return; }
-  var html = '<div class="toc-header"><strong>📑 Table of Contents</strong><button class="toc-toggle" id="tocToggle">−</button></div><ul class="toc-list">';
-  headings.forEach(function(h){
-    var tag = h.tagName.toLowerCase();
-    var indent = tag === 'h3' ? ' toc-indent' : '';
-    var id = h.id || '';
-    if (!id) { id = h.textContent.replace(/\s+/g, '-').toLowerCase(); h.id = id; }
-    html += '<li class="toc-item' + indent + '"><a href="#' + id + '">' + h.textContent + '</a></li>';
-  });
-  html += '</ul>';
-  toc.innerHTML = html;
-  // Toggle collapse
-  var visible = true;
-  document.getElementById('tocToggle').addEventListener('click', function(){
-    visible = !visible;
-    toc.querySelector('.toc-list').style.display = visible ? '' : 'none';
-    this.textContent = visible ? '\u2212' : '+';
-  });
+  if (!headings.length) return;
+
+  // 1. Build top-of-page TOC (H2 + H3)
+  if (toc) {
+    var html = '<div class="toc-header"><strong>📑 Table of Contents</strong><button class="toc-toggle" id="tocToggle">−</button></div><ul class="toc-list">';
+    headings.forEach(function(h){
+      var tag = h.tagName.toLowerCase();
+      var indent = tag === 'h3' ? ' toc-indent' : '';
+      var id = h.id || '';
+      if (!id) { id = h.textContent.replace(/\s+/g, '-').toLowerCase(); h.id = id; }
+      html += '<li class="toc-item' + indent + '"><a href="#' + id + '">' + h.textContent + '</a></li>';
+    });
+    html += '</ul>';
+    toc.innerHTML = html;
+    var visible = true;
+    document.getElementById('tocToggle').addEventListener('click', function(){
+      visible = !visible;
+      toc.querySelector('.toc-list').style.display = visible ? '' : 'none';
+      this.textContent = visible ? '\u2212' : '+';
+    });
+  }
+
+  // 2. Build sidebar chapter sub-nav (H2 only, compact)
+  if (subnav) {
+    var sn = '';
+    headings.forEach(function(h){
+      if (h.tagName !== 'H2') return;
+      var id = h.id || '';
+      if (!id) { id = h.textContent.replace(/\s+/g, '-').toLowerCase(); h.id = id; }
+      var label = h.textContent.replace(/^\d+\.\s*/, '').substring(0, 45);
+      sn += '<a class="chapter-sub-link" href="#' + id + '">' + label + '</a>';
+    });
+    subnav.innerHTML = sn;
+    subnav.style.display = '';
+
+    // Scroll spy for sub-nav
+    var subLinks = subnav.querySelectorAll('.chapter-sub-link');
+    var h2s = notes.querySelectorAll('h2');
+    window.addEventListener('scroll', function(){
+      var sy = window.scrollY + 120;
+      var cur = null;
+      h2s.forEach(function(h2, i){
+        if (h2.offsetTop <= sy) cur = i;
+      });
+      subLinks.forEach(function(a){ a.classList.remove('active'); });
+      if (cur !== null && subLinks[cur]) subLinks[cur].classList.add('active');
+    });
+  }
 })();
 </script>
 </body>
