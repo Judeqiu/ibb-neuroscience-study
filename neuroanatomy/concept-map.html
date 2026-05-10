@@ -129,9 +129,12 @@ kbd { display: inline-block; padding: 2px 6px; background: #f1f5f9; border: 1px 
 /* D3 Concept Map */
 #concept-map-container { width: 100%; height: 85vh; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #fafbfc; }
 #concept-map-container svg { width: 100%; height: 100%; }
-.node-card { background: #dbeafe; border: 2px solid #3b82f6; border-radius: 8px; padding: 8px 10px; font-size: 12px; line-height: 1.3; text-align: center; color: #1e40af; overflow: hidden; }
+.node-card { background: #dbeafe; border: 2px solid #3b82f6; border-radius: 8px; padding: 8px 26px 8px 10px; font-size: 12px; line-height: 1.3; text-align: center; color: #1e40af; overflow: hidden; position: relative; }
+.node-card:hover { filter: brightness(0.95); }
 .node-card .node-title { font-weight: 700; font-size: 13px; }
 .node-card .node-detail { font-size: 10px; color: #64748b; margin-top: 2px; }
+.cm-toggle { position: absolute; top: 4px; right: 4px; width: 18px; height: 18px; border: 1px solid rgba(0,0,0,0.15); border-radius: 3px; background: rgba(255,255,255,0.7); cursor: pointer; font-size: 13px; line-height: 16px; text-align: center; padding: 0; color: #475569; z-index: 10; }
+.cm-toggle:hover { background: rgba(255,255,255,0.95); }
 .legend-fixed { position: fixed; bottom: 16px; left: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 12px; box-shadow: var(--shadow); z-index: 50; }
 
 /* Responsive */
@@ -180,76 +183,84 @@ kbd { display: inline-block; padding: 2px 6px; background: #f1f5f9; border: 1px 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
 const data = {
-  name: "Central Nervous System",
+  name: "Central Nervous System", link: "introduction",
   color: "#dbeafe", border: "#3b82f6", textColor: "#1e40af",
   detail: "Brain + Spinal Cord",
   children: [
-    { name: "Spinal Cord", color: "#e0e7ff", border: "#6366f1", textColor: "#3730a3",
+    { name: "Spinal Cord", link: "spinal-cord",
+      color: "#e0e7ff", border: "#6366f1", textColor: "#3730a3",
       detail: "Sensory & motor modules, reflexes, autonomic",
       children: [
-        { name: "Gray Matter", color: "#e0e7ff", border: "#818cf8", textColor: "#3730a3", detail: "Laminae I-X" },
-        { name: "White Matter", color: "#e0e7ff", border: "#818cf8", textColor: "#3730a3", detail: "Ascending & descending tracts" },
-        { name: "Functional Regions", color: "#e0e7ff", border: "#818cf8", textColor: "#3730a3", detail: "Prebrachial → Caudal" }
+        { name: "Gray Matter", link: "spinal-cord", color: "#e0e7ff", border: "#818cf8", textColor: "#3730a3", detail: "Laminae I-X" },
+        { name: "White Matter", link: "spinal-cord", color: "#e0e7ff", border: "#818cf8", textColor: "#3730a3", detail: "Ascending & descending tracts" },
+        { name: "Functional Regions", link: "spinal-cord-regionalization", color: "#e0e7ff", border: "#818cf8", textColor: "#3730a3", detail: "Prebrachial → Caudal" }
       ]
     },
-    { name: "Brain Stem", color: "#d1fae5", border: "#10b981", textColor: "#065f46",
+    { name: "Brain Stem", link: "brain-stem",
+      color: "#d1fae5", border: "#10b981", textColor: "#065f46",
       detail: "Survival functions, cranial nerves",
       children: [
-        { name: "Medulla", color: "#a7f3d0", border: "#6ee7b7", textColor: "#064e3b", detail: "Breathing, CV control" },
-        { name: "Pons", color: "#a7f3d0", border: "#6ee7b7", textColor: "#064e3b", detail: "Pontine nuclei, sleep" },
-        { name: "Midbrain", color: "#a7f3d0", border: "#6ee7b7", textColor: "#064e3b", detail: "Superior & inferior colliculi" },
-        { name: "Cerebellum", color: "#a7f3d0", border: "#6ee7b7", textColor: "#064e3b", detail: "~80% of neurons, coordination" },
-        { name: "Cranial Nerves 3-12", color: "#a7f3d0", border: "#6ee7b7", textColor: "#064e3b", detail: "Motor & sensory to head/neck" }
+        { name: "Medulla", link: "brain-stem", color: "#a7f3d0", border: "#6ee7b7", textColor: "#064e3b", detail: "Breathing, CV control" },
+        { name: "Pons", link: "brain-stem", color: "#a7f3d0", border: "#6ee7b7", textColor: "#064e3b", detail: "Pontine nuclei, sleep" },
+        { name: "Midbrain", link: "brain-stem", color: "#a7f3d0", border: "#6ee7b7", textColor: "#064e3b", detail: "Superior & inferior colliculi" },
+        { name: "Cerebellum", link: "cerebellum", color: "#a7f3d0", border: "#6ee7b7", textColor: "#064e3b", detail: "~80% of neurons, coordination" },
+        { name: "Cranial Nerves 3-12", link: "brain-stem", color: "#a7f3d0", border: "#6ee7b7", textColor: "#064e3b", detail: "Motor & sensory to head/neck" }
       ]
     },
-    { name: "Diencephalon", color: "#fef3c7", border: "#f59e0b", textColor: "#92400e",
+    { name: "Diencephalon", link: "diencephalon",
+      color: "#fef3c7", border: "#f59e0b", textColor: "#92400e",
       detail: "Thalamus, hypothalamus, epithalamus",
       children: [
-        { name: "Thalamus", color: "#fef3c7", border: "#fbbf24", textColor: "#92400e", detail: "Sensory relay to cortex" },
-        { name: "Hypothalamus", color: "#fef3c7", border: "#fbbf24", textColor: "#92400e", detail: "Homeostasis, endocrine, ANS" },
-        { name: "Epithalamus", color: "#fef3c7", border: "#fbbf24", textColor: "#92400e", detail: "Pineal gland, circadian" }
+        { name: "Thalamus", link: "diencephalon", color: "#fef3c7", border: "#fbbf24", textColor: "#92400e", detail: "Sensory relay to cortex" },
+        { name: "Hypothalamus", link: "hypothalamus", color: "#fef3c7", border: "#fbbf24", textColor: "#92400e", detail: "Homeostasis, endocrine, ANS" },
+        { name: "Epithalamus", link: "diencephalon", color: "#fef3c7", border: "#fbbf24", textColor: "#92400e", detail: "Pineal gland, circadian" }
       ]
     },
-    { name: "Telencephalon", color: "#fce7f3", border: "#ec4899", textColor: "#9d174d",
+    { name: "Telencephalon", link: "telencephalon",
+      color: "#fce7f3", border: "#ec4899", textColor: "#9d174d",
       detail: "Cerebral hemispheres, cortex, basal ganglia",
       children: [
-        { name: "Frontal Lobe", color: "#fbcfe8", border: "#f9a8d4", textColor: "#831843", detail: "Motor, planning, Broca" },
-        { name: "Parietal Lobe", color: "#fbcfe8", border: "#f9a8d4", textColor: "#831843", detail: "Somatosensory, spatial" },
-        { name: "Temporal Lobe", color: "#fbcfe8", border: "#f9a8d4", textColor: "#831843", detail: "Auditory, memory, Wernicke" },
-        { name: "Occipital Lobe", color: "#fbcfe8", border: "#f9a8d4", textColor: "#831843", detail: "Visual processing" },
-        { name: "Basal Ganglia", color: "#fbcfe8", border: "#f9a8d4", textColor: "#831843", detail: "Striatum, pallidum" },
-        { name: "Amygdala", color: "#fbcfe8", border: "#f9a8d4", textColor: "#831843", detail: "Fear, emotion" }
+        { name: "Frontal Lobe", link: "telencephalon", color: "#fbcfe8", border: "#f9a8d4", textColor: "#831843", detail: "Motor, planning, Broca" },
+        { name: "Parietal Lobe", link: "telencephalon", color: "#fbcfe8", border: "#f9a8d4", textColor: "#831843", detail: "Somatosensory, spatial" },
+        { name: "Temporal Lobe", link: "telencephalon", color: "#fbcfe8", border: "#f9a8d4", textColor: "#831843", detail: "Auditory, memory, Wernicke" },
+        { name: "Occipital Lobe", link: "telencephalon", color: "#fbcfe8", border: "#f9a8d4", textColor: "#831843", detail: "Visual processing" },
+        { name: "Basal Ganglia", link: "telencephalon", color: "#fbcfe8", border: "#f9a8d4", textColor: "#831843", detail: "Striatum, pallidum" },
+        { name: "Amygdala", link: "telencephalon", color: "#fbcfe8", border: "#f9a8d4", textColor: "#831843", detail: "Fear, emotion" }
       ]
     },
-    { name: "Motor Systems", color: "#e0e7ff", border: "#8b5cf6", textColor: "#5b21b6",
+    { name: "Motor Systems", link: "motor-systems",
+      color: "#e0e7ff", border: "#8b5cf6", textColor: "#5b21b6",
       detail: "Pyramidal & extrapyramidal",
       children: [
-        { name: "Corticospinal Tract", color: "#ede9fe", border: "#a78bfa", textColor: "#5b21b6", detail: "Voluntary movement" },
-        { name: "Basal Ganglia Loops", color: "#ede9fe", border: "#a78bfa", textColor: "#5b21b6", detail: "Movement selection" },
-        { name: "Cerebellar Circuits", color: "#ede9fe", border: "#a78bfa", textColor: "#5b21b6", detail: "Coordination, error correction" }
+        { name: "Corticospinal Tract", link: "motor-systems", color: "#ede9fe", border: "#a78bfa", textColor: "#5b21b6", detail: "Voluntary movement" },
+        { name: "Basal Ganglia Loops", link: "motor-systems", color: "#ede9fe", border: "#a78bfa", textColor: "#5b21b6", detail: "Movement selection" },
+        { name: "Cerebellar Circuits", link: "cerebellum", color: "#ede9fe", border: "#a78bfa", textColor: "#5b21b6", detail: "Coordination, error correction" }
       ]
     },
-    { name: "Sensory Systems", color: "#ffedd5", border: "#f97316", textColor: "#9a3412",
+    { name: "Sensory Systems", link: "sensory-systems",
+      color: "#ffedd5", border: "#f97316", textColor: "#9a3412",
       detail: "Touch, vision, hearing, balance, smell, taste",
       children: [
-        { name: "Somatosensory", color: "#ffedd5", border: "#fb923c", textColor: "#9a3412", detail: "Touch, pain, proprioception" },
-        { name: "Visual System", color: "#ffedd5", border: "#fb923c", textColor: "#9a3412", detail: "Retina → LGN → V1" },
-        { name: "Auditory System", color: "#ffedd5", border: "#fb923c", textColor: "#9a3412", detail: "Cochlea → brainstem → A1" },
-        { name: "Vestibular", color: "#ffedd5", border: "#fb923c", textColor: "#9a3412", detail: "Balance, spatial orientation" }
+        { name: "Somatosensory", link: "somatosensory", color: "#ffedd5", border: "#fb923c", textColor: "#9a3412", detail: "Touch, pain, proprioception" },
+        { name: "Visual System", link: "visual-system", color: "#ffedd5", border: "#fb923c", textColor: "#9a3412", detail: "Retina → LGN → V1" },
+        { name: "Auditory System", link: "auditory-system", color: "#ffedd5", border: "#fb923c", textColor: "#9a3412", detail: "Cochlea → brainstem → A1" },
+        { name: "Vestibular", link: "vestibular-system", color: "#ffedd5", border: "#fb923c", textColor: "#9a3412", detail: "Balance, spatial orientation" }
       ]
     },
-    { name: "Autonomic NS", color: "#f1f5f9", border: "#64748b", textColor: "#334155",
+    { name: "Autonomic NS", link: "autonomic-nervous-system",
+      color: "#f1f5f9", border: "#64748b", textColor: "#334155",
       detail: "Sympathetic + Parasympathetic",
       children: [
-        { name: "Sympathetic", color: "#e2e8f0", border: "#94a3b8", textColor: "#334155", detail: "Thoracolumbar, fight-or-flight" },
-        { name: "Parasympathetic", color: "#e2e8f0", border: "#94a3b8", textColor: "#334155", detail: "Craniosacral, rest-and-digest" }
+        { name: "Sympathetic", link: "autonomic-nervous-system", color: "#e2e8f0", border: "#94a3b8", textColor: "#334155", detail: "Thoracolumbar, fight-or-flight" },
+        { name: "Parasympathetic", link: "autonomic-nervous-system", color: "#e2e8f0", border: "#94a3b8", textColor: "#334155", detail: "Craniosacral, rest-and-digest" }
       ]
     },
-    { name: "Blood & CSF", color: "#fee2e2", border: "#ef4444", textColor: "#991b1b",
+    { name: "Blood & CSF", link: "blood-supply",
+      color: "#fee2e2", border: "#ef4444", textColor: "#991b1b",
       detail: "Vascular supply + ventricular system",
       children: [
-        { name: "Circle of Willis", color: "#fee2e2", border: "#f87171", textColor: "#991b1b", detail: "Arterial anastomosis" },
-        { name: "CSF Circulation", color: "#fee2e2", border: "#f87171", textColor: "#991b1b", detail: "Choroid plexus → subarachnoid" }
+        { name: "Circle of Willis", link: "blood-supply", color: "#fee2e2", border: "#f87171", textColor: "#991b1b", detail: "Arterial anastomosis" },
+        { name: "CSF Circulation", link: "csf-circulation", color: "#fee2e2", border: "#f87171", textColor: "#991b1b", detail: "Choroid plexus → subarachnoid" }
       ]
     }
   ]
@@ -290,19 +301,17 @@ const data = {
       .attr("class", "node")
       .attr("x", function(d) { return d.y - 100; })
       .attr("y", function(d) { return d.x - 20; })
-      .attr("width", 200)
+      .attr("width", 220)
       .attr("height", 80)
       .html(function(d) {
         var bg = d.data.color || "#dbeafe";
         var border = d.data.border || "#3b82f6";
         var tc = d.data.textColor || "#1e40af";
         var detail = d.data.detail || "";
-        return '<div class="node-card" style="background:'+bg+';border-color:'+border+';color:'+tc+';cursor:'+(d.children||d._children?'pointer':'default')+'"><div class="node-title">'+d.data.name+'</div>'+(detail?'<div class="node-detail">'+detail+'</div>':'')+'</div>';
-      })
-      .on("click", function(event, d) {
-        if (d.children) { d._children = d.children; d.children = null; }
-        else if (d._children) { d.children = d._children; d._children = null; }
-        update(d);
+        var link = d.data.link || '';
+        var hasKids = !!(d.children || d._children);
+        var toggle = hasKids ? '<button class="cm-toggle">' + (d.children ? '−' : '+') + '</button>' : '';
+        return '<div class="node-card" style="background:'+bg+';border-color:'+border+';color:'+tc+';cursor:pointer;position:relative;" data-link="'+link+'"><div class="node-title">'+d.data.name+'</div>'+(detail?'<div class="node-detail">'+detail+'</div>':'')+toggle+'</div>';
       });
 
     node.each(function() {
@@ -313,7 +322,31 @@ const data = {
         d3.select(fo).attr("height", h).attr("y", parseFloat(fo.getAttribute("y")));
       }
     });
+
   }
+
+  // Event delegation on SVG for node clicks and toggle buttons
+  svg.on("click", function(event) {
+    var target = event.target;
+    // Toggle button: expand/collapse
+    if (target.classList.contains('cm-toggle')) {
+      event.stopPropagation();
+      var d = d3.select(target.closest('.node')).datum();
+      if (!d) return;
+      if (d.children) { d._children = d.children; d.children = null; }
+      else if (d._children) { d.children = d._children; d._children = null; }
+      update(d);
+      return;
+    }
+    // Node card: navigate to notes
+    var card = target.closest('.node-card');
+    if (card) {
+      var link = card.getAttribute('data-link');
+      if (link) {
+        window.location = 'index.html#' + link;
+      }
+    }
+  });
 
   var zoom = d3.zoom().scaleExtent([0.5, 5]).on("zoom", function(e) { g.attr("transform", e.transform); });
   svg.call(zoom);
