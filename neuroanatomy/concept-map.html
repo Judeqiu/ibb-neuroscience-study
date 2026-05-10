@@ -70,7 +70,7 @@ tbody tr:hover { background: #f8fafc; }
 
 /* Cross-reference tooltip */
 .glossary-term { color: var(--accent); border-bottom: 1px dashed var(--accent); cursor: help; position: relative; }
-.glossary-tooltip { position: fixed; background: #fff; color: var(--text); padding: 12px 16px; border-radius: 10px; font-size: 13px; max-width: 340px; z-index: 1000; line-height: 1.55; box-shadow: 0 8px 30px rgba(0,0,0,0.15); border: 1px solid var(--border); pointer-events: auto; display: none; }
+.glossary-tooltip { position: fixed; background: #fff; color: var(--text); padding: 12px 16px; border-radius: 10px; font-size: 13px; max-width: 420px; z-index: 1000; line-height: 1.55; box-shadow: 0 8px 30px rgba(0,0,0,0.15); border: 1px solid var(--border); pointer-events: auto; display: none; }
 .glossary-tooltip a { color: var(--accent); text-decoration: underline; font-size: 12px; font-weight: 600; }
 .glossary-tooltip.visible { display: block; }
 
@@ -91,6 +91,13 @@ tbody tr:hover { background: #f8fafc; }
 .quick-quiz-btn:hover { background: var(--accent); color: #fff; }
 .source-cite { display: inline-block; margin-left: 4px; font-size: 13px; text-decoration: none; opacity: .5; transition: opacity .15s; vertical-align: middle; }
 .source-cite:hover { opacity: 1; }
+
+/* Chapter sub-nav in sidebar */
+#chapter-subnav { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.chapter-sub-link { display: block; padding: 3px 12px; font-size: 11px; color: var(--text-secondary); text-decoration: none; border-radius: 4px; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: all .15s; }
+.chapter-sub-link:hover { color: var(--accent); background: var(--accent-light); }
+.chapter-sub-link.active { color: var(--accent); font-weight: 600; background: var(--accent-light); }
+.sidebar.collapsed #chapter-subnav { display: none !important; }
 
 /* Table of Contents */
 #notes-toc { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px; }
@@ -163,22 +170,34 @@ kbd { display: inline-block; padding: 2px 6px; background: #f1f5f9; border: 1px 
 <li><a href="blog-page.html" class=""><span class="nav-icon">📰</span><span class="nav-label">Blog</span></a></li>
 <li><a href="concept-map.html" class="active"><span class="nav-icon">🗺️</span><span class="nav-label">Concept Map</span></a></li>
 <li><a href="source.html" class=""><span class="nav-icon">📄</span><span class="nav-label">Source</span></a></li></ul>
+  <div id="chapter-subnav" style="display:none;"></div>
 </aside>
 <main class="main">
 <style>
   #concept-map-section { max-width: none; padding: 16px 20px; }
   #concept-map-section h2 { margin-bottom: 4px; }
-  #concept-map-container { width: 100%; height: calc(100vh - 140px); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #fafbfc; }
+  #concept-map-container { width: 100%; height: calc(100vh - 140px); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #fafbfc; position: relative; }
   #concept-map-container svg { width: 100%; height: 100%; display: block; }
+  .cm-zoom-controls { position: absolute; bottom: 16px; right: 16px; display: flex; flex-direction: column; gap: 4px; z-index: 20; }
+  .cm-zoom-btn { width: 36px; height: 36px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); cursor: pointer; font-size: 18px; line-height: 34px; text-align: center; color: var(--text); box-shadow: var(--shadow); user-select: none; -webkit-user-select: none; transition: all .15s; }
+  .cm-zoom-btn:hover { background: var(--accent-light); color: var(--accent); }
+  .cm-zoom-btn:active { transform: scale(0.95); }
   @media (max-width: 768px) {
     #concept-map-section { padding: 8px; }
     #concept-map-container { height: 60vh; }
+    .cm-zoom-btn { width: 44px; height: 44px; font-size: 22px; line-height: 42px; }
   }
 </style>
 <section class="section" id="concept-map-section">
 <h2 id="concept-map-title">Neuroanatomy Concept Map</h2>
 <p style="color:var(--text-secondary);margin-bottom:8px;font-size:13px;">Scroll to zoom · Drag to pan · Click nodes to expand/collapse</p>
-<div id="concept-map-container"></div>
+<div id="concept-map-container">
+  <div class="cm-zoom-controls">
+    <button class="cm-zoom-btn" id="cm-zoom-in" title="Zoom in">+</button>
+    <button class="cm-zoom-btn" id="cm-zoom-out" title="Zoom out">−</button>
+    <button class="cm-zoom-btn" id="cm-zoom-fit" title="Fit to screen" style="font-size:13px;">⊡</button>
+  </div>
+</div>
 </section>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
@@ -352,23 +371,28 @@ const data = {
   svg.call(zoom);
 
   // Initial zoom: fit to width, with minimum scale of 1.0 for readability
-  var bbox = g.node().getBBox();
-  var fitScale = Math.min(W / bbox.width, H / bbox.height);
-  var scale = Math.max(fitScale, 1.0);
-  var tx = (W - bbox.width * scale) / 2 - bbox.x * scale;
-  var ty = (H - bbox.height * scale) / 2 - bbox.y * scale;
-  svg.call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
-
-  window.addEventListener('resize', function() {
-    var cW = container.clientWidth;
-    var cH = container.clientHeight;
+  function fitToScreen() {
     var b = g.node().getBBox();
-    var fs = Math.min(cW / b.width, cH / b.height);
+    var fw = container.clientWidth;
+    var fh = container.clientHeight;
+    var fs = Math.min(fw / b.width, fh / b.height);
     var s = Math.max(fs, 1.0);
-    var x = (cW - b.width * s) / 2 - b.x * s;
-    var y = (cH - b.height * s) / 2 - b.y * s;
-    svg.call(zoom.transform, d3.zoomIdentity.translate(x, y).scale(s));
+    var x = (fw - b.width * s) / 2 - b.x * s;
+    var y = (fh - b.height * s) / 2 - b.y * s;
+    svg.transition().duration(300).call(zoom.transform, d3.zoomIdentity.translate(x, y).scale(s));
+  }
+  fitToScreen();
+
+  // Zoom buttons
+  document.getElementById('cm-zoom-in').addEventListener('click', function(){
+    svg.transition().duration(200).call(zoom.scaleBy, 1.4);
   });
+  document.getElementById('cm-zoom-out').addEventListener('click', function(){
+    svg.transition().duration(200).call(zoom.scaleBy, 0.7);
+  });
+  document.getElementById('cm-zoom-fit').addEventListener('click', fitToScreen);
+
+  window.addEventListener('resize', fitToScreen);
 })();
 </script>
 <div class="legend-fixed">
