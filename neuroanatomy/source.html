@@ -150,18 +150,169 @@ kbd { display: inline-block; padding: 2px 6px; background: #f1f5f9; border: 1px 
 </aside>
 <main class="main">
 <style>
-  #source-full { margin-left: calc(-1 * var(--sidebar-width)); width: calc(100vw - var(--sidebar-width)); max-width: none; padding: 0; }
-  .sidebar.collapsed ~ .main #source-full { margin-left: calc(-1 * var(--sidebar-collapsed)); width: calc(100vw - var(--sidebar-collapsed)); }
-  @media (max-width: 768px) { #source-full { margin-left: -16px; width: 100vw; } }
-  #source-iframe { width: 100%; height: 92vh; border: none; background: #e2e8f0; }
+  #source-section { max-width: none; padding: 16px 20px; }
+  #source-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+  #source-header h2 { margin: 0; border: none; padding: 0; }
+  #source-nav { display: flex; align-items: center; gap: 8px; }
+  #source-nav button { padding: 6px 14px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); cursor: pointer; font-size: 13px; transition: all .15s; }
+  #source-nav button:hover { background: var(--accent-light); color: var(--accent); }
+  #source-nav button:disabled { opacity: .4; cursor: default; }
+  #source-nav input { width: 50px; padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; text-align: center; }
+  #source-total { font-size: 13px; color: var(--text-secondary); }
+  #source-search { display: flex; align-items: center; gap: 6px; }
+  #source-search input { width: 220px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; outline: none; }
+  #source-search input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+  #search-results { font-size: 12px; color: var(--text-secondary); max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #search-results a { color: var(--accent); cursor: pointer; margin: 0 2px; }
+  #search-results a:hover { text-decoration: underline; }
+  #source-viewport { width: 100%; min-height: 60vh; background: #e2e8f0; border: 1px solid var(--border); border-radius: var(--radius); display: flex; align-items: flex-start; justify-content: center; padding: 20px; overflow: auto; }
+  #source-canvas { position: relative; background: #fff; box-shadow: 0 2px 12px rgba(0,0,0,.15); transform-origin: top center; flex-shrink: 0; }
+  #source-canvas .s-img { position: absolute; display: block; pointer-events: none; }
+  #source-canvas .s-txt { position: absolute; white-space: pre; line-height: 1.1; transform-origin: left top; }
+  #source-canvas .s-highlight { background: #fde68a; border-radius: 2px; }
+  #source-loading { color: var(--text-secondary); font-size: 14px; padding: 60px; text-align: center; }
+  @media (max-width: 768px) {
+    #source-header { flex-direction: column; align-items: flex-start; }
+    #source-search input { width: 160px; }
+    #source-viewport { padding: 8px; }
+  }
 </style>
-<section class="section" id="source-section" style="padding: 16px 20px;">
-<h2 id="source-title" style="margin-bottom:8px;">Original Source Document</h2>
-<p style="color:var(--text-secondary);margin-bottom:12px;font-size:14px;">Neuroanatomy IBB 2022 by Charles Watson et al. — the original PDF→HTML document from which the Deep Notes were derived.</p>
-<div id="source-full" style="border-top:1px solid var(--border);">
-  <iframe id="source-iframe" src="source/NeuroanatomyIBB.html" title="Original Neuroanatomy IBB 2022 Document"></iframe>
+<section class="section" id="source-section">
+<div id="source-header">
+  <h2 id="source-title">📄 Original Source Document</h2>
+  <div id="source-nav">
+    <button id="s-btn-first" title="First page">⏮</button>
+    <button id="s-btn-prev" title="Previous page">◀</button>
+    <input type="number" id="s-page-input" value="1" min="1" title="Jump to page">
+    <span id="source-total">/ 1</span>
+    <button id="s-btn-next" title="Next page">▶</button>
+    <button id="s-btn-last" title="Last page">⏭</button>
+  </div>
+  <div id="source-search">
+    <input type="text" id="s-search-input" placeholder="Search document...">
+    <span id="search-results"></span>
+  </div>
+</div>
+<div id="source-viewport">
+  <div id="source-canvas"></div>
+  <div id="source-loading">Loading document...</div>
 </div>
 </section>
+<script>
+(function(){
+  var pages = [];
+  var currentPage = 0;
+  var searchMatches = [];
+  var searchIdx = -1;
+  var canvas = document.getElementById('source-canvas');
+  var viewport = document.getElementById('source-viewport');
+  var loadingEl = document.getElementById('source-loading');
+  var pageInput = document.getElementById('s-page-input');
+  var totalEl = document.getElementById('source-total');
+  var searchInput = document.getElementById('s-search-input');
+  var searchResults = document.getElementById('search-results');
+
+  function ptToPx(pt) { return pt * 96 / 72; }
+
+  function renderPage(idx) {
+    if (idx < 0 || idx >= pages.length) return;
+    currentPage = idx;
+    var p = pages[idx];
+    var wPx = ptToPx(p.w);
+    var hPx = ptToPx(p.h);
+    var maxW = viewport.clientWidth - 40;
+    var scale = Math.min(1, maxW / wPx);
+    canvas.style.width = wPx + 'px';
+    canvas.style.height = hPx + 'px';
+    canvas.style.transform = scale < 1 ? 'scale(' + scale + ')' : 'none';
+    canvas.style.marginBottom = scale < 1 ? (hPx * (scale - 1)) + 'px' : '0';
+    canvas.innerHTML = p.html;
+    pageInput.value = idx + 1;
+    totalEl.textContent = '/ ' + pages.length;
+    document.getElementById('s-btn-prev').disabled = idx === 0;
+    document.getElementById('s-btn-first').disabled = idx === 0;
+    document.getElementById('s-btn-next').disabled = idx === pages.length - 1;
+    document.getElementById('s-btn-last').disabled = idx === pages.length - 1;
+    viewport.scrollTop = 0;
+  }
+
+  function goTo(idx) {
+    if (idx >= 0 && idx < pages.length) renderPage(idx);
+  }
+
+  // Load source HTML
+  fetch('source/NeuroanatomyIBB.html')
+    .then(function(r) { return r.text(); })
+    .then(function(html) {
+      var parser = new DOMParser();
+      var doc = parser.parseFromString(html, 'text/html');
+      var pageDivs = doc.querySelectorAll('.pdf-page');
+      pageDivs.forEach(function(div) {
+        var w = parseFloat((div.style.width || '595').replace('pt',''));
+        var h = parseFloat((div.style.height || '842').replace('pt',''));
+        // Extract images and text, remap class names
+        var inner = div.innerHTML;
+        inner = inner.replace(/class="pdf-image"/g, 'class="s-img"');
+        inner = inner.replace(/class="pdf-text"/g, 'class="s-txt"');
+        // Fix image src paths (they're relative to source/ dir)
+        inner = inner.replace(/src="NeuroanatomyIBB_images\//g, 'src="source/NeuroanatomyIBB_images/');
+        pages.push({ w: w, h: h, html: inner, text: (div.textContent || '').toLowerCase() });
+      });
+      loadingEl.style.display = 'none';
+      totalEl.textContent = '/ ' + pages.length;
+      pageInput.max = pages.length;
+      renderPage(0);
+    })
+    .catch(function(e) {
+      loadingEl.textContent = 'Failed to load document: ' + e.message;
+    });
+
+  // Navigation events
+  document.getElementById('s-btn-prev').addEventListener('click', function(){ goTo(currentPage - 1); });
+  document.getElementById('s-btn-next').addEventListener('click', function(){ goTo(currentPage + 1); });
+  document.getElementById('s-btn-first').addEventListener('click', function(){ goTo(0); });
+  document.getElementById('s-btn-last').addEventListener('click', function(){ goTo(pages.length - 1); });
+  pageInput.addEventListener('change', function(){
+    var n = parseInt(this.value) || 1;
+    goTo(Math.max(0, Math.min(pages.length - 1, n - 1)));
+  });
+
+  // Keyboard navigation
+  document.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === 'ArrowRight') goTo(currentPage + 1);
+    if (e.key === 'ArrowLeft') goTo(currentPage - 1);
+  });
+
+  // Search
+  var searchTimeout;
+  searchInput.addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    var q = this.value.trim().toLowerCase();
+    if (!q) { searchMatches = []; searchResults.innerHTML = ''; return; }
+    searchTimeout = setTimeout(function() {
+      searchMatches = [];
+      pages.forEach(function(p, i) {
+        if (p.text.indexOf(q) !== -1) searchMatches.push(i);
+      });
+      if (searchMatches.length > 0) {
+        var html = searchMatches.length + ' match' + (searchMatches.length > 1 ? 'es' : '') + ': ';
+        searchMatches.slice(0, 8).forEach(function(pn) {
+          html += '<a onclick="document.getElementById(\'s-page-input\').value=' + (pn+1) + '; window._srcGo(' + pn + ');">p' + (pn+1) + '</a> ';
+        });
+        if (searchMatches.length > 8) html += '...';
+        searchResults.innerHTML = html;
+        window._srcGo = goTo;
+      } else {
+        searchResults.innerHTML = 'No matches';
+      }
+    }, 200);
+  });
+
+  // Resize handler
+  window.addEventListener('resize', function() { if (pages.length) renderPage(currentPage); });
+})();
+</script>
 </main>
 <script>
 (function(){
