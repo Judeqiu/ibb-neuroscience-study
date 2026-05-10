@@ -70,7 +70,7 @@ tbody tr:hover { background: #f8fafc; }
 
 /* Cross-reference tooltip */
 .glossary-term { color: var(--accent); border-bottom: 1px dashed var(--accent); cursor: help; position: relative; }
-.glossary-tooltip { position: fixed; background: #fff; color: var(--text); padding: 12px 16px; border-radius: 10px; font-size: 13px; max-width: 340px; z-index: 1000; line-height: 1.55; box-shadow: 0 8px 30px rgba(0,0,0,0.15); border: 1px solid var(--border); pointer-events: auto; display: none; }
+.glossary-tooltip { position: fixed; background: #fff; color: var(--text); padding: 12px 16px; border-radius: 10px; font-size: 13px; max-width: 420px; z-index: 1000; line-height: 1.55; box-shadow: 0 8px 30px rgba(0,0,0,0.15); border: 1px solid var(--border); pointer-events: auto; display: none; }
 .glossary-tooltip a { color: var(--accent); text-decoration: underline; font-size: 12px; font-weight: 600; }
 .glossary-tooltip.visible { display: block; }
 
@@ -1594,7 +1594,7 @@ var idx = {};
     var raw = s.textContent.trim();
     // Remove trailing colon, then parentheses content
     var term = raw.replace(/:\s*$/, '').replace(/\s*\([^)]*\)\s*$/, '').trim().toLowerCase();
-    if (term) idx[term] = {id: li.id, text: li.textContent.trim().substring(0, 200)};
+    if (term) idx[term] = {id: li.id, text: li.textContent.trim()};
   });
 })();
 
