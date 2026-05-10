@@ -92,6 +92,17 @@ tbody tr:hover { background: #f8fafc; }
 .source-cite { display: inline-block; margin-left: 4px; font-size: 13px; text-decoration: none; opacity: .5; transition: opacity .15s; vertical-align: middle; }
 .source-cite:hover { opacity: 1; }
 
+/* Table of Contents */
+#notes-toc { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px; }
+.toc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+.toc-toggle { width: 22px; height: 22px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); cursor: pointer; font-size: 14px; line-height: 20px; text-align: center; color: var(--text-secondary); padding: 0; }
+.toc-toggle:hover { background: var(--accent-light); color: var(--accent); }
+.toc-list { list-style: none; margin: 0; padding: 0; }
+.toc-item { margin: 0; padding: 3px 0; font-size: 13px; line-height: 1.5; }
+.toc-item a { color: var(--text-secondary); text-decoration: none; display: block; padding: 2px 8px; border-radius: 4px; transition: all .15s; }
+.toc-item a:hover { color: var(--accent); background: var(--accent-light); }
+.toc-indent a { padding-left: 28px; font-size: 12px; }
+
 /* Flashcards */
 .flashcard-container { perspective: 1200px; width: 100%; max-width: 600px; margin: 0 auto; }
 .flashcard { position: relative; width: 100%; height: 380px; cursor: pointer; transform-style: preserve-3d; transition: transform 0.6s; }
@@ -152,6 +163,7 @@ kbd { display: inline-block; padding: 2px 6px; background: #f1f5f9; border: 1px 
 </aside>
 <main class="main">
 <section class="section" id="deep-notes">
+<div id="notes-toc"></div>
 <div id="notes-content"><h1 id="topic-title">Neuroanatomy: Comprehensive Study Notes</h1>
 <p><em>Based on "Neuroanatomy IBB 2022" by Charles Watson, Matthew Kirkcaldie, Friedrich Schwarz</em></p>
 
@@ -1744,6 +1756,31 @@ document.querySelectorAll('.quick-quiz-btn').forEach(function(btn){
     }
   });
 });
+})();
+</script><script>
+(function(){
+  var notes = document.getElementById('notes-content');
+  var toc = document.getElementById('notes-toc');
+  if (!notes || !toc) return;
+  var headings = notes.querySelectorAll('h2, h3');
+  if (!headings.length) { toc.style.display = 'none'; return; }
+  var html = '<div class="toc-header"><strong>📑 Table of Contents</strong><button class="toc-toggle" id="tocToggle">−</button></div><ul class="toc-list">';
+  headings.forEach(function(h){
+    var tag = h.tagName.toLowerCase();
+    var indent = tag === 'h3' ? ' toc-indent' : '';
+    var id = h.id || '';
+    if (!id) { id = h.textContent.replace(/\s+/g, '-').toLowerCase(); h.id = id; }
+    html += '<li class="toc-item' + indent + '"><a href="#' + id + '">' + h.textContent + '</a></li>';
+  });
+  html += '</ul>';
+  toc.innerHTML = html;
+  // Toggle collapse
+  var visible = true;
+  document.getElementById('tocToggle').addEventListener('click', function(){
+    visible = !visible;
+    toc.querySelector('.toc-list').style.display = visible ? '' : 'none';
+    this.textContent = visible ? '\u2212' : '+';
+  });
 })();
 </script>
 </body>
